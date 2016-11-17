@@ -468,17 +468,46 @@ class TestFuseboxyAuth extends UnitTestCase {
 
 
 	function test__Sim__userIn(){
-		$this->assertTrue(1);
+		$_SESSION['sim_user'] = array('role' => 'CITYU.STAFF,CITYU.STUDENT,CITYU.ALUMNI');
+		// check
+		$this->assertTrue ( Sim::userIn('*.*') );
+		$this->assertFalse( Sim::userIn('HKU.*') );
+		$this->assertTrue ( Sim::userIn('CITYU.*') );
+		$this->assertFalse( Sim::userIn('*.LECTURER') );
+		$this->assertTrue ( Sim::userIn('*.STAFF') );
+		$this->assertFalse( Sim::userIn('HKU.STAFF') );
+		$this->assertTrue ( Sim::userIn('HKU.STAFF,*.*') );
+		$this->assertTrue ( Sim::userIn('HKU.STAFF,CITYU.STUDENT') );
+		// clean-up
+		unset($_SESSION['sim_user']);
 	}
 
 
 	function test__Sim__userInGroup(){
-		$this->assertTrue(1);
+		$_SESSION['sim_user'] = array('role' => 'CITYU.STAFF,CITYU.STUDENT,CITYU.ALUMNI');
+		// check
+		$this->assertTrue ( Sim::userInGroup('*') );
+		$this->assertTrue ( Sim::userInGroup('CITYU') );
+		$this->assertFalse( Sim::userInGroup('HKU') );
+		$this->assertFalse( Sim::userInGroup('HKU,UST') );
+		$this->assertTrue ( Sim::userInGroup('CITYU,UST') );
+		$this->assertTrue ( Sim::userInGroup('HKU,UST,*') );
+		// clean-up
+		unset($_SESSION['sim_user']);
 	}
 
 
 	function test__Sim__userInRole(){
-		$this->assertTrue(1);
+		$_SESSION['sim_user'] = array('role' => 'CITYU.STAFF,CITYU.STUDENT,CITYU.ALUMNI');
+		// check
+		$this->assertTrue ( Sim::userInRole('*') );
+		$this->assertTrue ( Sim::userInRole('STAFF') );
+		$this->assertFalse( Sim::userInRole('LECTURER') );
+		$this->assertFalse( Sim::userInRole('LECTURER,PROFESSOR') );
+		$this->assertTrue ( Sim::userInRole('STAFF,LECTURER') );
+		$this->assertTrue ( Sim::userInRole('LECTURER,PROFESSOR,*') );
+		// clean-up
+		unset($_SESSION['sim_user']);
 	}
 
 
