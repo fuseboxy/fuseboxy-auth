@@ -1,0 +1,71 @@
+<?php
+class Sim {
+
+
+	// get (latest) error message
+	private static $error;
+	public static function error() { return self::$error; }
+
+
+	// end user sim
+	public static function end() {
+		if ( isset($_SESSION['sim_user']) ) unset($_SESSION['sim_user']);
+		return true;
+	}
+
+
+	// start user sim
+	public static function start($user_id=null) {
+		// validation
+		if ( empty($user_id) ) {
+			self::$error = 'Sim::start() - argument [user_id] is required';
+			return false;
+		}
+		// get user info
+		$bean = R::load('user', $user_id);
+		if ( !$bean->id ) {
+			self::$error = "Sim::start() - user [id={$user_id}] not found";
+			return false;
+		}
+		// start simulation
+		// ===> php does not allow storing bean (object) in session
+		$_SESSION['sim_user'] = $bean->export();
+		// result
+		return true;
+	}
+
+
+	// obtain specific information of simulated user
+	// ===> return whole user structure if no variable name specified
+	public static function user($key=null) {
+		if ( empty($_SESSION['sim_user']) ) {
+			return false;
+		} elseif ( !isset($key) ) {
+			return $_SESSION['sim_user'];
+		} elseif ( isset($_SESSION['sim_user'][$key]) ) {
+			return $_SESSION['sim_user'][$key];
+		} else {
+			return false;
+		}
+	}
+
+
+	// check whether sim-user is specific group-roles
+	public static function userIn($rights=array()) {
+		return Auth::userIn($rights, self::user());
+	}
+
+
+	// check whether sim-user is specific groups
+	public static function userInGroup($groups=array()) {
+		return Auth::userInGroup($groups, self::user());
+	}
+
+
+	// check whether sim-user is specific roles
+	public static function userInRole($roles=array()) {
+		return Auth::userInRole($roles, self::user());
+	}
+
+
+}
