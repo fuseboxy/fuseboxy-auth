@@ -4,6 +4,12 @@ class TestFuseboxyAuth extends UnitTestCase {
 
 	function __construct(){
 		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
+		if ( !class_exists('Framework') ) {
+			include dirname(__FILE__).'/utility-auth/framework/1.0/fuseboxy.php';
+		}
+		if ( !class_exists('F') ) {
+			include dirname(__FILE__).'/utility-auth/framework/1.0/F.php';
+		}
 		if ( !class_exists('Auth') ) {
 			include dirname(dirname(__FILE__)).'/app/model/Auth.php';
 		}
@@ -12,8 +18,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		}
 		if ( !class_exists('R') ) {
 			include dirname(__FILE__).'/utility-auth/redbeanphp/4.3.3/rb.php';
-			R::setup('sqlite:'.dirname(__FILE__).'/unit_test.db');
-			R::freeze(false);
+			include dirname(__FILE__).'/utility-auth/config/rb_config.php';
 		}
 	}
 
@@ -511,48 +516,511 @@ class TestFuseboxyAuth extends UnitTestCase {
 	}
 
 
-	function test__authController__autoInit(){
-		$this->assertTrue(1);
+	function test__authController__beforeAction(){
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'index';
+		// auto-init when no user record
+		R::wipe('user');
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = true;
+			$this->assertPattern('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$this->assertPattern('/'.preg_quote(F::url('auth.init'), '/').'/i', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		// do not auto-init when has user record
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = true;
+			throw $e;
+		}
+		$this->assertFalse($hasRedirect);
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__index(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'index';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		// redirect to default page when logged in
+		Auth::login(array('username' => 'foo'), true);
+		try {
+			$hasError = $hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+			$hasError = preg_match('/PHP ERROR/i', $output);
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasError = !$hasRedirect;
+			$this->assertPattern('/'.preg_quote(F::config('defaultCommand'), '/').'/i', $e->getMessage());
+		}
+		$this->assertFalse($hasError);
+		$this->assertTrue($hasRedirect);
+		Auth::logout();
+		// successfully show login form
+		// ===> should have {submit} and {forgot password} links
+		// ===> should not be any error
+		try {
+			$hasError = $hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+			$hasError = preg_match('/PHP ERROR/i', $output);
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasError = !$hasRedirect;
+			$this->assertPattern('/'.preg_quote(F::url(F::config('defaultCommand')), '/').'/i', $e->getMessage());
+		}
+		$this->assertFalse($hasError);
+		$this->assertFalse($hasRedirect);
+		$this->assertPattern('/'.preg_quote(F::url('auth.login'), '/').'/i', $output);
+		$this->assertPattern('/'.preg_quote(F::url('auth.forgot'), '/').'/i', $output);
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__forgot(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'forgot';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		// successfully show forgot password form
+		// ===> should have {return to login} and {submit} links
+		// ===> should not be any error
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+			$hasError = preg_match('/PHP ERROR/i', $output);
+		} catch (Exception $e) {
+			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+		}
+		$this->assertFalse($hasError);
+		$this->assertPattern('/'.preg_quote(F::url('auth.reset-password'), '/').'/i', $output);
+		$this->assertPattern('/'.preg_quote(F::url('auth.index'), '/').'/i', $output);
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__resetPassword(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'reset-password';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar', 'email' => 'foo@bar.com'));
+		$id = R::store($bean);
+		// missing email
+		$arguments['data'] = array();
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$this->assertPattern('/no email was provided/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		// successfully reset password
+		// ===> email sent and redirect to forgot password page
+		$arguments['data']['email'] = 'foo@bar.com';
+		try {
+			$hasError = $hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+			$hasError = preg_match('/PHP ERROR/i', $output);
+		} catch (Exception $e) {
+			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$this->assertPattern('/'.preg_quote(F::url('auth.forgot'), '/').'/i', $e->getMessage());
+		}
+		$this->assertFalse($hasError);
+		$this->assertTrue($hasRedirect);
+		$bean = R::load('user', $id);
+		$this->assertTrue( $bean->password != 'bar' );
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__login(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'login';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foobar', 'password' => '123456', 'email' => 'foo@bar.com'));
+		$id = R::store($bean);
+		// no data was submitted
+		$arguments['data'] = array();
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$this->assertPattern('/no data were submitted/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		$this->assertFalse( Auth::user() );
+		// successful login by username
+		$arguments['data'] = array('username' => 'foobar', 'password' => '123456');
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertTrue( Auth::user('username') == 'foobar' );
+		$this->assertFalse( !empty($_SESSION['flash']) and $_SESSION['flash']['type'] == 'danger' );
+		if ( isset($_SESSION['flash']) ) unset($_SESSION['flash']);
+		Auth::logout();
+		// successful login by email (user types email into username field)
+		$arguments['data'] = array('username' => 'foo@bar.com', 'password' => '123456');
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertTrue( Auth::user('username') == 'foobar' );
+		$this->assertFalse( !empty($_SESSION['flash']) and $_SESSION['flash']['type'] == 'danger' );
+		if ( isset($_SESSION['flash']) ) unset($_SESSION['flash']);
+		Auth::logout();
+		// login failure with wrong password
+		$arguments['data'] = array('username' => 'foobar', 'password' => '999999');
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertFalse( Auth::user() );
+		$this->assertTrue( !empty($_SESSION['flash']) and $_SESSION['flash']['type'] == 'danger' );
+		if ( isset($_SESSION['flash']) ) unset($_SESSION['flash']);
+		Auth::logout();
+		// login failure with wrong username
+		$arguments['data'] = array('username' => 'ABCxyz', 'password' => '123456');
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertFalse( Auth::user() );
+		$this->assertTrue( !empty($_SESSION['flash']) and $_SESSION['flash']['type'] == 'danger' );
+		if ( isset($_SESSION['flash']) ) unset($_SESSION['flash']);
+		Auth::logout();
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__logout(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'logout';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		// everyone can logout
+		// ===> should not be any error
+		// ===> then redirect to index
+		$_SESSION['auth_user'] = array('role' => 'GUEST', 'username' => 'foobar');
+		$this->assertTrue( Auth::user() );
+		try {
+			$hasError = $hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasError = !$hasRedirect;
+		}
+		$this->assertFalse($hasError);
+		$this->assertTrue($hasRedirect);
+		$this->assertFalse( Auth::user() );
+		$this->assertFalse( Sim::user() );
+		// even no-login can also logout
+		// ===> should not be any error
+		unset($_SESSION['auth_user']);
+		$this->assertFalse( Auth::user() );
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = !preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertFalse($hasError);
+		$this->assertFalse( Auth::user() );
+		$this->assertFalse( Sim::user() );
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 
 	function test__authController__startSim(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'start-sim';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		// only super or admin is allowed
+		$_SESSION['auth_user'] = array('role' => 'USER');
+		$this->assertTrue( Auth::user() );
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = true;
+			$this->assertPattern('/disallowed/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		$this->assertFalse( Sim::user() );
+		// no user was specified
+		$_SESSION['auth_user'] = array('role' => 'ADMIN');
+		$this->assertTrue( Auth::user() );
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = true;
+			$this->assertPattern('/no user was specified/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		$this->assertFalse( Sim::user() );
+		// sucessful user-sim
+		$arguments['user_id'] = $id;
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertTrue( Sim::user() );
+		// clean-up
+		unset($fusebox, $_SESSION['auth_user']);
+		Sim::end();
+		R::nuke();
 	}
 
 
 	function test__authController__endSim(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'end-sim';
+		// create dummy user (to avoid auto-init)
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		// only super or admin is allowed
+		$_SESSION['auth_user'] = array('role' => 'USER');
+		$this->assertTrue( Auth::user() );
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = true;
+			$this->assertPattern('/disallowed/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		// pretend to be super-user
+		// ===> user-sim session should be cleared
+		// ===> then return to index
+		$_SESSION['auth_user'] = array('role' => 'SUPER');
+		$_SESSION['sim_user'] = array('role' => 'GUEST');
+		$this->assertTrue( Sim::user() );
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$this->assertPattern('/'.preg_quote(F::url('auth'), '/').'/i', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertFalse( Sim::user() );
+		// check admin-user as well
+		$_SESSION['auth_user'] = array('role' => 'ADMIN');
+		$_SESSION['sim_user'] = array('role' => 'GUEST');
+		$this->assertTrue( Sim::user() );
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$this->assertFalse( Sim::user() );
+		// clean-up
+		$fusebox = null;
+		unset($fusebox, $_SESSION['auth_user']);
+		if (isset($_SESSION['sim_user']) ) unset($_SESSION['sim_user']);
+		R::nuke();
 	}
 
 
 	function test__authController__init(){
-		$this->assertTrue(1);
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
+		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::setControllerAction();
+		Framework::setMyself();
+		// define action to run
+		$fusebox->controller = 'auth';
+		$fusebox->action = 'init';
+		// should stop when already has user
+		$bean = R::dispense('user');
+		$bean->import(array('username' => 'foo', 'password' => 'bar'));
+		$id = R::store($bean);
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = true;
+			$this->assertPattern('/user account already exists/i', $e->getMessage());
+		}
+		$this->assertTrue($hasError);
+		R::wipe('user');
+		// super-user should be created (and return to index)
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRedirect = true;
+			$this->assertPattern('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$this->assertPattern('/'.preg_quote(F::url('auth'), '/').'/i', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		$bean = R::findOne('user', 'role = ?', array('SUPER'));
+		$this->assertTrue($bean->id);
+		// clean-up
+		$fusebox = null;
+		unset($fusebox);
+		R::nuke();
 	}
 
 

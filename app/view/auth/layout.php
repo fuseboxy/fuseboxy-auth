@@ -1,16 +1,24 @@
 <?php
 // flash
 ob_start();
-include 'app/view/global/layout.flash.php';
+if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+	include F::config('appPath').'view/global/layout.flash.php';
+} else {
+	include F::config('appPath').'../test/utility-auth/flash.php';
+}
 $authLayout['flash'] = ob_get_clean();
 
 
-// box
+// login box
 ob_start();
-$layout['panelTitle'] = 'Fusebox Tiny Demo<br /><small>Admin Console</small>';
-include 'app/view/auth/panel.php';
+$layout['panelTitle'] = 'Sign In<br /><small>Admin Console</small>';
+include F::config('appPath').'view/auth/panel.php';
 $layout['content'] = ob_get_clean();
 
 
 // layout
-include 'app/view/global/layout.basic.php';
+if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+	include F::config('appPath').'view/global/layout.basic.php';
+} else {
+	include F::config('appPath').'../test/utility-auth/layout.php';
+}

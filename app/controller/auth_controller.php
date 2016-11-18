@@ -4,7 +4,7 @@ F::redirect('auth.init', !F::is('auth.init') and ( R::count('user') == 0 ) );
 
 
 // run...
-switch ( $boxy->action ) :
+switch ( $fusebox->action ) :
 
 
 	// login form
@@ -13,24 +13,24 @@ switch ( $boxy->action ) :
 		// ===> go to default page if no callback defined
 		// ===> go to (base64-encoded) callback if defined
 		if ( Auth::user() ) {
-			F::redirect('site', !isset($arguments['callback']));
-			F::redirect(base64_decode($arguments['callback']), true, array('external' => true));
+			F::redirect(F::config('defaultCommand'), !isset($arguments['callback']));
+			F::redirect(base64_decode($arguments['callback']), true);
 		}
 		// exit point
 		$xfa['submit'] = 'auth.login';
 		if ( isset($arguments['callback']) ) {
 			$xfa['submit'] .= "&callback={$arguments['callback']}";
 		}
-		//$xfa['forgot'] = 'auth.forgot';
+		$xfa['forgot'] = 'auth.forgot';
 		// display
 		ob_start();
-		include 'app/view/auth/login.php';
+		include F::config('appPath').'view/auth/login.php';
 		$layout['content'] = ob_get_clean();
 		// layout (when necessary)
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			include 'app/view/auth/layout.php';
+			include F::config('appPath').'view/auth/layout.php';
 		}
 		break;
 
@@ -38,22 +38,22 @@ switch ( $boxy->action ) :
 	// forgot password
 	case 'forgot':
 		// exit point
-		$xfa['submit'] = 'auth.reset_password';
+		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.index';
 		// display
 		ob_start();
-		include "app/view/auth/forgot.php";
+		include F::config('appPath').'view/auth/forgot.php';
 		$layout['content'] = ob_get_clean();
 		// layout (when necessary)
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			include 'app/view/auth/layout.php';
+			include F::config('appPath').'view/auth/layout.php';
 		}
 		break;
 
 
-	case 'reset_password':
+	case 'reset-password':
 		F::error('No email was provided', empty($arguments['data']['email']));
 		// check email
 		$arguments['data']['email'] = trim($arguments['data']['email']);
@@ -70,14 +70,18 @@ switch ( $boxy->action ) :
 		R::store($user);
 		// prepare mail
 		$mail = array(
-			'from_name' => 'System',
-			'from' => 'noreply.metaseit@gmail.com',
+			'from_name' => 'Please do not reply',
+			'from' => 'noreply@metaseit.com',
 			'to' => $arguments['data']['email'],
 			'subject' => 'Your password was reset',
 			'body' => "New password : <strong>{$password}</strong>"
 		);
-		// send mail
-		$mailResult = Util::sendMail($mail);
+		// send mail (do not send when unit test)
+		if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+			$mailResult = Util::sendMail($mail);
+		} else {
+			$mailResult = true;
+		}
 		if ( !$mailResult ) {
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Util::error());
 		} else {
@@ -86,7 +90,7 @@ switch ( $boxy->action ) :
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
-				'action' => 'RESET_PASSWORD',
+				'action' => 'reset-password',
 				'remark' => $mailResult ? '' : Util::error(),
 			));
 			F::error(Log::error(), !$logResult);
@@ -98,9 +102,6 @@ switch ( $boxy->action ) :
 
 	case 'login':
 		F::error('No data were submitted', empty($arguments['data']));
-		// info for log
-		$uid = $arguments['data']['username'];
-		$ip = $_SERVER['REMOTE_ADDR'];
 		// login (by username, then by email)
 		$result = Auth::login($arguments['data']);
 		// try email if not succeed...
@@ -114,6 +115,14 @@ switch ( $boxy->action ) :
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		}
 		// save log
+		if ( isset($arguments['data']['email']) ) {
+			$uid = $arguments['data']['email'];
+		} elseif ( isset($arguments['data']['username']) ) {
+			$uid = $arguments['data']['username'];
+		} else {
+			$uid = '';
+		}
+		$ip = $_SERVER['REMOTE_ADDR'];
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'LOGIN',
@@ -146,9 +155,9 @@ switch ( $boxy->action ) :
 		break;
 
 
-	case 'start_sim':
+	case 'start-sim':
 		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
-		F::error('User is not specified', empty($arguments['user_id']));
+		F::error('No user was specified', empty($arguments['user_id']));
 		// start (or show error when neccessary)
 		$result = Sim::start($arguments['user_id']);
 		F::error(Sim::error(), !$result);
@@ -163,7 +172,7 @@ switch ( $boxy->action ) :
 		break;
 
 
-	case 'end_sim':
+	case 'end-sim':
 		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
 		// end (or show error when necessary)
 		$sim_user = Sim::user('username');
@@ -194,7 +203,10 @@ switch ( $boxy->action ) :
 		));
 		$result = R::store($bean);
 		// show message
-		$_SESSION['flash'] = array('type' => 'success', 'message' => "Super account was created ({$bean->username} : {$bean->password})");
+		$_SESSION['flash'] = array(
+			'type' => 'success',
+			'message' => "Super account was created ({$bean->username} : {$bean->password})"
+		);
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(

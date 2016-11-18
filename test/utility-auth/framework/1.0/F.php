@@ -52,7 +52,9 @@ class F {
 	public static function error($msg='error', $condition=true) {
 		global $fusebox;
 		if ( $condition ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) header("HTTP/1.0 403 Forbidden");
+			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+				header("HTTP/1.0 403 Forbidden");
+			}
 			$fusebox->error = $msg;
 			if ( isset($fusebox->config['errorController']) ) {
 				include $fusebox->config['errorController'];
@@ -134,7 +136,9 @@ class F {
 	public static function pageNotFound($condition=true) {
 		global $fusebox;
 		if ( $condition ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) header("HTTP/1.0 404 Not Found");
+			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+				header("HTTP/1.0 404 Not Found");
+			}
 			$fusebox->error = 'Page not found';
 			if ( isset($fusebox->config['errorController']) ) {
 				include $fusebox->config['errorController'];
@@ -165,15 +169,16 @@ class F {
 		if ( !$isExternalUrl ) $url = self::url($url);
 		// check if any delay (in second)
 		$headerString = empty($delay) ? "Location: {$url}" : "Refresh: {$delay}; url={$url}";
-		// do not redirect if condition false
-		if ( !$condition ) $headerString = false;
-		// simply return header-string when unit-test
-		if ( !empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-			return $headerString;
-		// perform redirect (when necessary)
-		} elseif ( !empty($headerString) ) {
-			header($headerString);
-			die();
+		// only redirect when condition is true
+		if ( $condition ) {
+			// perform redirect (when necessary)
+			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+				header($headerString);
+				die();
+			// throw header-string as exception in order to abort operation without stopping unit-test
+			} else {
+				throw new Exception("[FUSEBOX-REDIRECT] {$headerString}");
+			}
 		}
 	}
 
