@@ -1024,4 +1024,4 @@ class TestFuseboxyAuth extends UnitTestCase {
 	}
 
 
-}
+} // TestFuseboxyAuth
