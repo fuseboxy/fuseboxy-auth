@@ -253,6 +253,7 @@ class Framework {
 	// ===> user could define array of scopes to merge
 	public static function formUrl2arguments() {
 		global $fusebox;
+		global $arguments;
 		if ( isset($fusebox->config['formUrl2arguments']) and !empty($fusebox->config['formUrl2arguments']) ) {
 			global $arguments;
 			// config default
@@ -296,6 +297,7 @@ class Framework {
 	// run specific controller and action
 	public static function run() {
 		global $fusebox;
+		global $arguments;
 		// main process...
 		self::createAPIObject();
 		self::loadDefaultConfig();
