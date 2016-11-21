@@ -91,28 +91,27 @@ class F {
 
 	// invoke specific command
 	// ===> allow accessing arguments scope
-	public static function invoke($command, $arguments=array()) {
+	public static function invoke($newCommand, $arguments=array()) {
 		global $fusebox;
-		// create stack container to keep track current command
+		// create stack container to keep track of command-in-run
+		// ===> first item of invoke queue should be original command
+		// ===> second item onward will be the command(s) called by F::invoke()
 		if ( !isset($fusebox->invokeQueue) ) $fusebox->invokeQueue = array();
-		// current controller & action
-		$fusebox->invokeQueue[] = $command;
-		$arr = self::parseCommand($command);
-		$fusebox->controller = $arr['controller'];
-		$fusebox->action = $arr['action'];
-		// determine the controller to load
+		$fusebox->invokeQueue[] = "{$fusebox->controller}{$fusebox->config['commandDelimiter']}{$fusebox->action}";
+		// parse new command
+		$newCommand = self::parseCommand($newCommand);
+		$fusebox->controller = $newCommand['controller'];
+		$fusebox->action = $newCommand['action'];
 		$controllerPath = "{$fusebox->config['appPath']}/controller/{$fusebox->controller}_controller.php";
 		// check controller existence
 		F::pageNotFound( !file_exists($controllerPath) );
-		// load controller
+		// run new command
 		include $controllerPath;
 		// trim stack after run
-		if ( !empty($fusebox->invokeQueue) ) {
-			$nextCommand = array_pop($fusebox->invokeQueue);
-			$arr = self::parseCommand($nextCommand);
-			$fusebox->controller = $arr['controller'];
-			$fusebox->action = $arr['action'];
-		}
+		// ===> reset to original command
+		$originalCommand = self::parseCommand( array_pop($fusebox->invokeQueue) );
+		$fusebox->controller = $originalCommand['controller'];
+		$fusebox->action = $originalCommand['action'];
 		// done!
 		return true;
 	}
