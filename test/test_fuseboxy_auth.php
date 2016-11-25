@@ -952,7 +952,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
-			$this->assertPattern('/'.preg_quote(F::url('auth'), '/').'/i', $e->getMessage());
+			$this->assertPattern('/'.preg_quote(F::url(F::config('defaultCommand')), '/').'/i', $e->getMessage());
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertFalse( Sim::user() );

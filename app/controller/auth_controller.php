@@ -13,12 +13,12 @@ switch ( $fusebox->action ) :
 		// ===> go to default page if no callback defined
 		// ===> go to (base64-encoded) callback if defined
 		if ( Auth::user() ) {
-			F::redirect(F::config('defaultCommand'), !isset($arguments['callback']));
-			F::redirect(base64_decode($arguments['callback']), true);
+			F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
+			F::redirect(base64_decode($arguments['callback']));
 		}
 		// exit point
 		$xfa['submit'] = 'auth.login';
-		if ( isset($arguments['callback']) ) {
+		if ( !empty($arguments['callback']) ) {
 			$xfa['submit'] .= "&callback={$arguments['callback']}";
 		}
 		$xfa['forgot'] = 'auth.forgot';
@@ -130,10 +130,10 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), !$logResult);
 		}
-		// return to form
-		// ===> do redirection later on
-		$xfa['redirect'] = isset($arguments['callback']) ? "auth&callback={$arguments['callback']}" : 'auth';
-		F::redirect($xfa['redirect']);
+		// return to login form, or...
+		// ===> go to (base64-encoded) callback if defined
+		F::redirect('auth', empty($arguments['callback']));
+		F::redirect(base64_decode($arguments['callback']));
 		break;
 
 
@@ -149,9 +149,10 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), !$logResult);
 		}
-		// return to form
-		$xfa['redirect'] = isset($arguments['callback']) ? "auth&callback={$arguments['callback']}" : 'auth';
-		F::redirect($xfa['redirect']);
+		// return to login form, or...
+		// ===> go to (base64-encoded) callback if defined
+		F::redirect('auth', empty($arguments['callback']));
+		F::redirect(base64_decode($arguments['callback']));
 		break;
 
 
@@ -166,9 +167,10 @@ switch ( $fusebox->action ) :
 			$logResult = Log::write('START_USER_SIM');
 			F::error(Log::error(), !$logResult);
 		}
-		// go to default page
-		$xfa['redirect'] = isset($arguments['callback']) ? "auth&callback={$arguments['callback']}" : 'auth';
-		F::redirect($xfa['redirect']);
+		// go to default page, or...
+		// ===> go to (base64-encoded) callback if defined
+		F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
+		F::redirect(base64_decode($arguments['callback']));
 		break;
 
 
@@ -186,9 +188,10 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), !$logResult);
 		}
-		// go to default page
-		$xfa['redirect'] = isset($arguments['callback']) ? "auth&callback={$arguments['callback']}" : 'auth';
-		F::redirect($xfa['redirect']);
+		// go to default page, or...
+		// ===> go to (base64-encoded) callback if defined
+		F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
+		F::redirect(base64_decode($arguments['callback']));
 		break;
 
 
