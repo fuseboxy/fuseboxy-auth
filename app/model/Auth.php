@@ -2,6 +2,10 @@
 class Auth {
 
 
+	// define constant
+	const SKIP_PASSWORD_CHECK = 1;
+
+
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
@@ -35,13 +39,13 @@ class Auth {
 
 	// sign in user
 	// ===> allow login by username or email
-	public static function login($data, $skipPasswordCheck=false) {
+	public static function login($data, $mode=0) {
 		// validation
 		if ( !isset($data['username']) and !isset($data['email']) ) {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( !$skipPasswordCheck and !isset($data['password']) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and !isset($data['password']) ) {
 			self::$error = 'Password is required';
 			return false;
 		}
@@ -62,7 +66,7 @@ class Auth {
 			return false;
 		}
 		// check password (case-sensitive)
-		if ( !$skipPasswordCheck and $user->password != $data['password'] ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data['password'] ) {
 			self::$error = 'Wrong password';
 			return false;
 		}
