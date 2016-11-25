@@ -9,13 +9,8 @@ switch ( $fusebox->action ) :
 
 	// login form
 	case 'index':
-		// when user already logged in...
-		// ===> go to default page if no callback defined
-		// ===> go to (base64-encoded) callback if defined
-		if ( Auth::user() ) {
-			F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
-			F::redirect(base64_decode($arguments['callback']));
-		}
+		// go to default page when user already logged in
+		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.login';
 		if ( !empty($arguments['callback']) ) {
