@@ -13,9 +13,6 @@ switch ( $fusebox->action ) :
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.login';
-		if ( !empty($arguments['callback']) ) {
-			$xfa['submit'] .= "&callback={$arguments['callback']}";
-		}
 		$xfa['forgot'] = 'auth.forgot';
 		// display
 		ob_start();
@@ -125,10 +122,8 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), !$logResult);
 		}
-		// return to login form, or...
-		// ===> go to (base64-encoded) callback if defined
-		F::redirect('auth', empty($arguments['callback']));
-		F::redirect(base64_decode($arguments['callback']));
+		// return to login form
+		F::redirect('auth');
 		break;
 
 
@@ -145,9 +140,7 @@ switch ( $fusebox->action ) :
 			F::error(Log::error(), !$logResult);
 		}
 		// return to login form, or...
-		// ===> go to (base64-encoded) callback if defined
-		F::redirect('auth', empty($arguments['callback']));
-		F::redirect(base64_decode($arguments['callback']));
+		F::redirect('auth');
 		break;
 
 
