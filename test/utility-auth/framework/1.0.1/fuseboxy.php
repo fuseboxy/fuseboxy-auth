@@ -103,7 +103,9 @@ class Framework {
 	public static function setMyself() {
 		global $fusebox;
 		if ( !empty($fusebox->config['urlRewrite']) ) {
-			$fusebox->self = dirname($_SERVER['SCRIPT_NAME']).'/';
+			$fusebox->self = dirname($_SERVER['SCRIPT_NAME']);
+			$fusebox->self = str_replace('\\', '/', $fusebox->self);
+			if ( substr($fusebox->self, -1) != '/' ) $fusebox->self .= '/';
 			$fusebox->myself = $fusebox->self;
 		} else {
 			$fusebox->self = $_SERVER['SCRIPT_NAME'];
@@ -144,8 +146,10 @@ class Framework {
 	// ===> work closely with {$fusebox->config['route']} and F::url()
 	public static function urlRewrite() {
 		global $fusebox;
-		// server variable {PATH_INFO} will be available when {RewriteEngine On} in <.htaccess>
-		if ( !empty($fusebox->config['urlRewrite']) and !empty($_SERVER['PATH_INFO']) ) {
+		// request <http://{HOST}/{APP}/foo/bar> will have {REQUEST_URI=/{APP}/foo/bar}
+		// request <http://{HOST}/foo/bar> will have {REQUEST_URI=/foo/bar}
+		// request <http://{HOST}/foo/bar?a=1&b=2> will have {REQUEST_URI=/foo/bar?a=1&b=2}
+		if ( !empty($fusebox->config['urlRewrite']) ) {
 			// cleanse the route config (and keep the sequence)
 			if ( isset($fusebox->config['route']) ) {
 				$fixedRoute = array();
@@ -169,9 +173,15 @@ class Framework {
 				$fusebox->config['route'] = $fixedRoute;
 			}
 			// cleanse the path-like-query-string
-			$qsPath = $_SERVER['PATH_INFO'];
+			$baseDir = dirname($_SERVER['SCRIPT_NAME']);
+			$baseDir = str_replace('\\', '/', $baseDir);
+			if ( substr($baseDir, -1) != '/' ) $baseDir .= '/';
+			$qsPath = preg_replace('/'.preg_quote($baseDir, '/').'/', '', $_SERVER['REQUEST_URI'], 1);  // turn request-uri to path-like-query-string
+			$qsPath = preg_replace('/\?/', '&', $qsPath, 1);
+			$qsPath = str_replace('&', '/', $qsPath);  // fixed delimiter of mixed-query-string
 			$qsPath = str_replace('\\', '/', $qsPath);  // unify to forward-slash
 			do { $qsPath = str_replace('//', '/', $qsPath); } while ( strpos($qsPath, '//') !== false );  // remove multi-(forward-)slash
+			if ( substr($qsPath, 0, 1) != '/' ) $qsPath = '/'.$qsPath;
 			// check if there is route match...
 			// ===> apply query-string-replacement of the first match
 			$hasRouteMatch = false;
@@ -205,12 +215,10 @@ class Framework {
 				// join remaining elements into query-string
 				$qs .= ( '&' . implode('&', $arr) );
 			}
-			// merge original query-string (if any)
-			if ( !empty($_SERVER['QUERY_STRING']) ) {
-				$qs .= ( '&' . $_SERVER['QUERY_STRING'] );;
-			}
 			// trim leading and-sign from query-string (if any)
 			$qs = trim($qs, '&');
+			// remove any double-and-sign
+			$qs = str_replace('&&', '&', $qs);
 			// put parameters of query-string into {$_GET} scope
 			$qsArray = explode('&', $qs);
 			foreach ( $qsArray as $param ) {
