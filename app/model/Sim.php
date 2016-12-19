@@ -21,8 +21,12 @@ class Sim {
 			self::$error = 'Sim::start() - argument [user_id] is required';
 			return false;
 		}
-		// get user info
-		$bean = R::load('user', $user_id);
+		// get user info (treat argument as username if not numeric)
+		if ( is_numeric($user_id) ) {
+			$bean = R::load('user', $user_id);
+		} else {
+			$bean = R::findOne('user', 'username = ? ', array($user_id));
+		}
 		if ( !$bean->id ) {
 			self::$error = "Sim::start() - user [id={$user_id}] not found";
 			return false;

@@ -447,13 +447,18 @@ class TestFuseboxyAuth extends UnitTestCase {
 		$this->assertFalse( Sim::user() );
 		$this->assertPattern("/not found/i", Sim::error());
 		Sim::end();
-		// with existing user specified
+		// with existing user specified (by id)
 		$bean = R::dispense('user');
 		$bean->username = 'foo';
 		$bean->password = 'bar';
 		$id = R::store($bean);
 		$this->assertTrue( !empty($id) );
 		$startResult = Sim::start($id);
+		$this->assertTrue( Sim::user() );
+		$this->assertTrue( isset($_SESSION['sim_user']) );
+		Sim::end();
+		// with existing user specified (by username)
+		$startResult = Sim::start('foo');
 		$this->assertTrue( Sim::user() );
 		$this->assertTrue( isset($_SESSION['sim_user']) );
 		Sim::end();
