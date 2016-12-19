@@ -40,6 +40,10 @@ class Auth {
 	// sign in user
 	// ===> allow login by username or email
 	public static function login($data, $mode=0) {
+		// transform data (when necessary)
+		if ( is_string($data) ) {
+			$data = array('username' => $data);
+		}
 		// validation
 		if ( !isset($data['username']) and !isset($data['email']) ) {
 			self::$error = 'Username or email is required';

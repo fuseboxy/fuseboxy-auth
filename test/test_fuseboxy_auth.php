@@ -162,6 +162,11 @@ class TestFuseboxyAuth extends UnitTestCase {
 		$this->assertPattern('/password is required/i', Auth::error());
 		Auth::logout();
 		// login with password legitimately skipped
+		$loginResult = Auth::login('foo', Auth::SKIP_PASSWORD_CHECK);
+		$this->assertTrue( $loginResult );
+		$this->assertTrue( Auth::user() );
+		$this->assertTrue( Auth::user('username') == 'foo' );
+		Auth::logout();
 		$loginResult = Auth::login(array( 'username' => 'foo' ), Auth::SKIP_PASSWORD_CHECK);
 		$this->assertTrue( $loginResult );
 		$this->assertTrue( Auth::user() );
