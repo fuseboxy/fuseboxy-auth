@@ -5,8 +5,8 @@
 				<h3 style="margin: 0;"><?php echo $layout['panelTitle']; ?></h3>
 			</div>
 			<div class="panel-body" style="padding-bottom: 0;">
-				<?php echo $authLayout['flash']; ?>
-				<?php echo $layout['content']; ?>
+				<?php if ( isset($authLayout['flash']) ) echo $authLayout['flash']; ?>
+				<?php if ( isset($layout['content']) ) echo $layout['content']; ?>
 			</div>
 		</div>
 	</div>
