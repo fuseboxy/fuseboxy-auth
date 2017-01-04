@@ -186,6 +186,15 @@ class TestFuseboxyAuth extends UnitTestCase {
 		$this->assertFalse( $loginResult );
 		$this->assertFalse( Auth::user() );
 		$this->assertPattern('/user record not found/i', Auth::error());
+		$this->assertPattern('/username=abcde/i', Auth::error());
+		$loginResult = Auth::login(array(
+			'email' => 'abc@xyz.com',
+			'password' => '12345',
+		));
+		$this->assertFalse( $loginResult );
+		$this->assertFalse( Auth::user() );
+		$this->assertPattern('/user record not found/i', Auth::error());
+		$this->assertPattern('/email=abc@xyz.com/i', Auth::error());
 		Auth::logout();
 		// account disabled
 		$bean = R::findOne('user', 'username = ?', array('foo'));
@@ -198,6 +207,15 @@ class TestFuseboxyAuth extends UnitTestCase {
 		$this->assertFalse( $loginResult );
 		$this->assertFalse( Auth::user() );
 		$this->assertPattern('/user account was disabled/i', Auth::error());
+		$this->assertPattern('/username=foo/i', Auth::error());
+		$loginResult = Auth::login(array(
+			'email' => 'foo@bar.com',
+			'password' => 'bar',
+		));
+		$this->assertFalse( $loginResult );
+		$this->assertFalse( Auth::user() );
+		$this->assertPattern('/user account was disabled/i', Auth::error());
+		$this->assertPattern('/email=foo@bar.com/i', Auth::error());
 		Auth::logout();
 		$bean->disabled = 0;
 		R::store($bean);

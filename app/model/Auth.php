@@ -54,19 +54,29 @@ class Auth {
 			return false;
 		}
 		// get user record
-		if ( !empty($data['username']) ) {
+		if ( isset($data['username']) ) {
 			$user = R::findOne('user', 'username = ? ', array($data['username']));
 		} else {
 			$user = R::findOne('user', 'email = ? ', array($data['email']));
 		}
 		// check user existence
 		if ( empty($user) ) {
-			self::$error = 'User record not found';
+			self::$error = 'User record not found ';
+			if ( isset($data['username']) ) {
+				self::$error .= "(username={$data['username']})";
+			} else {
+				self::$error .= "(email={$data['email']})";
+			}
 			return false;
 		}
 		// check user status
 		if ( $user->disabled ) {
-			self::$error = 'User account was disabled';
+			self::$error = 'User account was disabled ';
+			if ( isset($data['username']) ) {
+				self::$error .= "(username={$data['username']})";
+			} else {
+				self::$error .= "(email={$data['email']})";
+			}
 			return false;
 		}
 		// check password (case-sensitive)
@@ -79,10 +89,10 @@ class Auth {
 		$_SESSION['auth_user'] = $user->export();
 		// perform auto-login for {remember} days when session expired
 		if ( isset($data['remember']) ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-				setcookie(self::__cookieKey(), $user->username, time()+intval($data['remember'])*24*60*60);
-			} else {
+			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 				$_COOKIE[self::__cookieKey()] = $user->username;
+			} else {
+				setcookie(self::__cookieKey(), $user->username, time()+intval($data['remember'])*24*60*60);
 			}
 		}
 		// result
@@ -100,10 +110,10 @@ class Auth {
 			unset($_SESSION['auth_user']);
 		}
 		if ( isset($_COOKIE[self::__cookieKey()]) ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-				setcookie(self::__cookieKey(), '', -1);
-			} else {
+			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 				unset($_COOKIE[self::__cookieKey()]);
+			} else {
+				setcookie(self::__cookieKey(), '', -1);
 			}
 		}
 		return true;
@@ -234,7 +244,7 @@ class Auth {
 		return 'auth_user_'.session_name();
 	}
 	public static function cookieKey() {
-		if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+		if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
 			throw new Exception("Method Auth::cookieKey() is for unit test only");
 			return false;
 		}		
