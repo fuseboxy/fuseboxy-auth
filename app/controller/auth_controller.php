@@ -69,11 +69,7 @@ switch ( $fusebox->action ) :
 			'body' => "New password : <strong>{$password}</strong>"
 		);
 		// send mail (do not send when unit test)
-		if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-			$mailResult = Util::sendMail($mail);
-		} else {
-			$mailResult = true;
-		}
+		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail($mail);
 		if ( !$mailResult ) {
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Util::error());
 		} else {

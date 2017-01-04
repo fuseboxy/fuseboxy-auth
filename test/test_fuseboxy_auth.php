@@ -3,22 +3,23 @@ class TestFuseboxyAuth extends UnitTestCase {
 
 
 	function __construct(){
-		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
 		if ( !class_exists('Framework') ) {
-			include dirname(__FILE__).'/utility-auth/framework/1.0.1/fuseboxy.php';
+			include __DIR__.'/utility-auth/framework/1.0.2/fuseboxy.php';
+			Framework::$mode = Framework::FUSEBOX_UNIT_TEST;
+			Framework::$configPath = __DIR__.'/utility-auth/config/fusebox_config.php';
 		}
 		if ( !class_exists('F') ) {
-			include dirname(__FILE__).'/utility-auth/framework/1.0.1/F.php';
+			include __DIR__.'/utility-auth/framework/1.0.2/F.php';
 		}
 		if ( !class_exists('Auth') ) {
-			include dirname(dirname(__FILE__)).'/app/model/Auth.php';
+			include dirname(__DIR__).'/app/model/Auth.php';
 		}
 		if ( !class_exists('Sim') ) {
-			include dirname(dirname(__FILE__)).'/app/model/Sim.php';
+			include dirname(__DIR__).'/app/model/Sim.php';
 		}
 		if ( !class_exists('R') ) {
-			include dirname(__FILE__).'/utility-auth/redbeanphp/4.3.3/rb.php';
-			include dirname(__FILE__).'/utility-auth/config/rb_config.php';
+			include __DIR__.'/utility-auth/redbeanphp/4.3.3/rb.php';
+			include __DIR__.'/utility-auth/config/rb_config.php';
 		}
 	}
 
@@ -529,8 +530,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__beforeAction(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -541,12 +542,12 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRedirect = true;
-			$this->assertPattern('/FUSEBOX-REDIRECT/', $e->getMessage());
 			$this->assertPattern('/'.preg_quote(F::url('auth.init'), '/').'/i', $e->getMessage());
+			$this->assertTrue($e->getCode() == Framework::FUSEBOX_REDIRECT);
 		}
 		$this->assertTrue($hasRedirect);
 		// do not auto-init when has user record
@@ -557,7 +558,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRedirect = true;
@@ -574,8 +575,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__index(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -590,11 +591,11 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = $hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 			$hasError = preg_match('/PHP ERROR/i', $output);
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 			$hasError = !$hasRedirect;
 			$this->assertPattern('/'.preg_quote(F::config('defaultCommand'), '/').'/i', $e->getMessage());
 		}
@@ -607,11 +608,11 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = $hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 			$hasError = preg_match('/PHP ERROR/i', $output);
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 			$hasError = !$hasRedirect;
 			$this->assertPattern('/'.preg_quote(F::url(F::config('defaultCommand')), '/').'/i', $e->getMessage());
 		}
@@ -629,8 +630,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__forgot(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -646,11 +647,11 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 			$hasError = preg_match('/PHP ERROR/i', $output);
 		} catch (Exception $e) {
-			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertFalse($hasError);
 		$this->assertPattern('/'.preg_quote(F::url('auth.reset-password'), '/').'/i', $output);
@@ -665,8 +666,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__resetPassword(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -681,10 +682,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$this->assertPattern('/no email was provided/i', $e->getMessage());
 		}
 		$this->assertTrue($hasError);
@@ -694,12 +695,12 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = $hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 			$hasError = preg_match('/PHP ERROR/i', $output);
 		} catch (Exception $e) {
-			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 			$this->assertPattern('/'.preg_quote(F::url('auth.forgot'), '/').'/i', $e->getMessage());
 		}
 		$this->assertFalse($hasError);
@@ -716,8 +717,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__login(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -732,10 +733,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasError = preg_match('/FUSEBOX-ERROR/', $e->getMessage());
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$this->assertPattern('/no data were submitted/i', $e->getMessage());
 		}
 		$this->assertTrue($hasError);
@@ -745,10 +746,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertTrue( Auth::user('username') == 'foobar' );
@@ -760,10 +761,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertTrue( Auth::user('username') == 'foobar' );
@@ -775,10 +776,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertFalse( Auth::user() );
@@ -790,10 +791,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertFalse( Auth::user() );
@@ -810,8 +811,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__logout(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -829,10 +830,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = $hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 			$hasError = !$hasRedirect;
 		}
 		$this->assertFalse($hasError);
@@ -846,10 +847,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasError = !preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasError = !( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertFalse($hasError);
 		$this->assertFalse( Auth::user() );
@@ -864,8 +865,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__startSim(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -881,7 +882,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasError = true;
@@ -895,7 +896,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasError = true;
@@ -908,10 +909,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertTrue( Sim::user() );
@@ -925,8 +926,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__endSim(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -942,7 +943,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasError = true;
@@ -958,10 +959,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 			$this->assertPattern('/'.preg_quote(F::url(F::config('defaultCommand')), '/').'/i', $e->getMessage());
 		}
 		$this->assertTrue($hasRedirect);
@@ -973,10 +974,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		$this->assertTrue($hasRedirect);
 		$this->assertFalse( Sim::user() );
@@ -991,8 +992,8 @@ class TestFuseboxyAuth extends UnitTestCase {
 	function test__authController__init(){
 		global $fusebox;
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		Framework::setControllerAction();
 		Framework::setMyself();
 		// define action to run
@@ -1005,7 +1006,7 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasError = true;
@@ -1017,11 +1018,10 @@ class TestFuseboxyAuth extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/auth_controller.php';
+			include dirname(__DIR__).'/app/controller/auth_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRedirect = true;
-			$this->assertPattern('/FUSEBOX-REDIRECT/', $e->getMessage());
+			$hasRedirect = ($e->getCode() == Framework::FUSEBOX_REDIRECT);
 			$this->assertPattern('/'.preg_quote(F::url('auth'), '/').'/i', $e->getMessage());
 		}
 		$this->assertTrue($hasRedirect);

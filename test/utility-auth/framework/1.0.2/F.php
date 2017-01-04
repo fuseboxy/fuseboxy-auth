@@ -3,10 +3,10 @@
 	<description>
 		Helper component for Fuseboxy framework
 	</description>
-	<properties name="version" value="1.0" />
+	<properties name="version" value="1.0.2" />
 	<io>
 		<in>
-			<boolean name="FUSEBOX_UNIT_TEST" scope="$GLOBALS" optional="yes" />
+			<string name="$mode" scope="Framework" optional="yes" comments="UNIT_TEST" />
 		</in>
 	</io>
 </fusedoc>
@@ -23,7 +23,9 @@ class F {
 	// controller + action
 	public static function command($key='') {
 		global $fusebox;
-		if ( $key == null ) {
+		if ( empty($fusebox->config['defaultCommand']) ) {
+			return false;
+		} elseif ( $key == null ) {
 			return $fusebox->controller.$fusebox->config['commandDelimiter'].$fusebox->action;
 		} elseif ( strtolower($key) == 'controller' ) {
 			return $fusebox->controller;
@@ -43,7 +45,7 @@ class F {
 		} elseif ( isset($fusebox->config[$key]) ) {
 			return $fusebox->config[$key];
 		} else {
-			return false;
+			return null;
 		}
 	}
 
@@ -52,15 +54,13 @@ class F {
 	public static function error($msg='error', $condition=true) {
 		global $fusebox;
 		if ( $condition ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-				header("HTTP/1.0 403 Forbidden");
-			}
+			if ( !headers_sent() ) header("HTTP/1.0 403 Forbidden");
 			$fusebox->error = $msg;
-			if ( isset($fusebox->config['errorController']) ) {
+			if ( !empty($fusebox->config['errorController']) ) {
 				include $fusebox->config['errorController'];
-				die();
+				die(); // ensure operation aborted
 			} else {
-				throw new Exception("[FUSEBOX-ERROR] ".self::command()." - ".$fusebox->error);
+				throw new Exception(self::command()." - ".$fusebox->error, Framework::FUSEBOX_ERROR);
 			}
 		}
 	}
@@ -135,15 +135,13 @@ class F {
 	public static function pageNotFound($condition=true) {
 		global $fusebox;
 		if ( $condition ) {
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-				header("HTTP/1.0 404 Not Found");
-			}
+			if ( !headers_sent() ) header("HTTP/1.0 404 Not Found");
 			$fusebox->error = 'Page not found';
-			if ( isset($fusebox->config['errorController']) ) {
+			if ( !empty($fusebox->config['errorController']) ) {
 				include $fusebox->config['errorController'];
-				die();
+				die(); // ensure operation aborted
 			} else {
-				throw new Exception("[FUSEBOX-PAGE-NOT-FOUND] ".self::command()." - ".$fusebox->error);
+				throw new Exception(self::command()." - ".$fusebox->error, Framework::FUSEBOX_PAGE_NOT_FOUND);
 			}
 		}
 	}
@@ -152,11 +150,20 @@ class F {
 	// extract controller & action from command
 	public static function parseCommand($command) {
 		global $fusebox;
-		$arr = explode($fusebox->config['commandDelimiter'], $command, 2);
-		return array(
-			'controller' => $arr[0],
-			'action' => !empty($arr[1]) ? $arr[1] : 'index'
-		);
+		// split command by delimiter (when not empty)
+		if ( !empty($command) ) {
+			$arr = explode($fusebox->config['commandDelimiter'], $command, 2);
+			return array(
+				'controller' => $arr[0],
+				'action' => !empty($arr[1]) ? $arr[1] : 'index'
+			);
+		// both are false when command is empty
+		} else {
+			return array(
+				'controller' => false,
+				'action' => false,
+			);
+		}
 	}
 
 
@@ -166,17 +173,17 @@ class F {
 		// check internal or external link
 		$isExternalUrl = ( substr(strtolower(trim($url)), 0, 7) == 'http://' or substr(strtolower(trim($url)), 0, 8) == 'https://' );
 		if ( !$isExternalUrl ) $url = self::url($url);
-		// check if any delay (in second)
-		$headerString = empty($delay) ? "Location: {$url}" : "Refresh: {$delay}; url={$url}";
 		// only redirect when condition is true
 		if ( $condition ) {
-			// perform redirect (when necessary)
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
-				header($headerString);
-				die();
 			// throw header-string as exception in order to abort operation without stopping unit-test
+			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
+				throw new Exception("Refresh:{$delay};url={$url}", Framework::FUSEBOX_REDIRECT);
+			// perform redirect (when necessary)
+			} elseif ( !headers_sent() ) {
+				header("Refresh:{$delay};url={$url}");
+				die();
 			} else {
-				throw new Exception("[FUSEBOX-REDIRECT] {$headerString}");
+				die("<script>window.setTimeout(function(){document.location.href='{$url}';},{$delay}*0);</script>");
 			}
 		}
 	}
