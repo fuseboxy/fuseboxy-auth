@@ -175,13 +175,16 @@ class F {
 		if ( !$isExternalUrl ) $url = self::url($url);
 		// only redirect when condition is true
 		if ( $condition ) {
+			// must use Location when no delay because Refresh doesn't work on ajax-request
+			$headerString = empty($delay) ? "Location:{$url}" : "Refresh:{$delay};url={$url}";
 			// throw header-string as exception in order to abort operation without stopping unit-test
 			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-				throw new Exception("Refresh:{$delay};url={$url}", Framework::FUSEBOX_REDIRECT);
-			// perform redirect (when necessary)
+				throw new Exception($headerString, Framework::FUSEBOX_REDIRECT);
+			// invoke redirect at server-side
 			} elseif ( !headers_sent() ) {
-				header("Refresh:{$delay};url={$url}");
+				header($headerString);
 				die();
+			// invoke redirect at client-side (when header already sent)
 			} else {
 				die("<script>window.setTimeout(function(){document.location.href='{$url}';},{$delay}*0);</script>");
 			}
