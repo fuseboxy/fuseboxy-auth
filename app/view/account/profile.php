@@ -38,7 +38,7 @@
 	</div>
 	<div class="form-group">
 		<label class="control-label col-xs-2">Full name</label>
-		<div class="col-xs-3"><input type="text" class="form-control input-sm" name="data[full_name]" value="<?php echo $user->full_name; ?>" /></div>
+		<div class="col-xs-3"><input type="text" class="form-control input-sm" name="data[fullname]" value="<?php echo $user->fullname; ?>" /></div>
 	</div>
 	<div class="form-group">
 		<label class="control-label col-xs-2">Email</label>

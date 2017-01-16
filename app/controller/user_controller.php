@@ -24,7 +24,7 @@ $scaffold = array(
 	'listOrder' => 'ORDER BY username',
 	'listField' => array(
 		'id' => '5%',
-		'role|full_name' => '20%',
+		'role|fullname' => '20%',
 		'username|password' => '20%',
 		'email|tel' => ''
 	),
@@ -33,7 +33,7 @@ $scaffold = array(
 		'username' => array('placeholder' => 'Login'),
 		'password' => array('placeholder' => 'Password'),
 		'role' => array('default' => $_SESSION['user_role'], 'readonly' => !Auth::activeUserInRole('SUPER')),
-		'full_name' => array('placeholder' => 'Full Name'),
+		'fullname' => array('placeholder' => 'Full Name'),
 		'email' => array('placeholder' => 'Email'),
 		'tel' => array('placeholder' => 'Phone')
 	)
