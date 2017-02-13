@@ -1,14 +1,12 @@
 <?php
-// create super account (when necessary)
-F::redirect('auth.init', !F::is('auth.init') and ( R::count('user') == 0 ) );
-
-
 // run...
 switch ( $fusebox->action ) :
 
 
 	// login form
 	case 'index':
+		// create super account (when necessary)
+		F::redirect('auth.init', R::count('user') == 0);
 		// go to default page when user already logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
