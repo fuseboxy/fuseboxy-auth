@@ -1,5 +1,6 @@
 <?php
 F::redirect('auth', !Auth::user());
+F::redirect(F::config('defaultCommand'), !Auth::activeUserInRole('SUPER,ADMIN'));
 
 
 // default role
