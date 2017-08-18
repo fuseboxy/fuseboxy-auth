@@ -21,6 +21,9 @@ class TestFuseboxyAuth extends UnitTestCase {
 			include __DIR__.'/utility-auth/redbeanphp/4.3.3/rb.php';
 			include __DIR__.'/utility-auth/config/rb_config.php';
 		}
+		if ( !class_exists('phpQuery') ) {
+			include __DIR__.'/utility-auth/phpquery/0.9.5/phpQuery.php';
+		}
 	}
 
 
@@ -1048,6 +1051,88 @@ class TestFuseboxyAuth extends UnitTestCase {
 		// clean-up
 		$fusebox = null;
 		unset($fusebox);
+		R::nuke();
+	}
+
+
+	function test__accountControler__profile(){
+	}
+
+
+	function test__accountControler__password(){
+	}
+
+
+	function test__accountControler__updateProfile(){
+	}
+
+
+	function test__accountControler__updatePassword(){
+	}
+
+
+	function test__userControler__index(){
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadConfig();
+		Framework::setMyself();
+		$fusebox->action = 'index';
+		$fusebox->config['appPath'] = __DIR__.'/utility-auth/';
+		// create dummy records
+		$data = array(
+			array('username' => 'super',  'role' => 'SUPER', 'fullname' => 'Super User'),
+			array('username' => 'admin',  'role' => 'ADMIN', 'fullname' => 'Administrator'),
+			array('username' => 'normal', 'role' => 'USER',  'fullname' => 'Normal User'),
+		);
+		foreach ( $data as $i => $item ) {
+			$bean = R::dispense('user');
+			$bean->import($item);
+			$id = R::store($bean);
+			$this->assertTrue( !empty($id) );
+		}
+		// only accessible after login
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/user_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
+			$this->assertPattern('/fuseaction=auth/i', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		// only accessible by super or admin
+		$loginResult = Auth::login('normal', Auth::SKIP_PASSWORD_CHECK);
+		$this->assertTrue( $loginResult );
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/user_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
+			$this->assertPattern("/fuseaction={$fusebox->config['defaultCommand']}/i", $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		Auth::logout();
+		// access page successfully
+		$loginResult = Auth::login('admin', Auth::SKIP_PASSWORD_CHECK);
+		$this->assertTrue( $loginResult );
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/user_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasError = true;
+		}
+		$this->assertFalse($hasError);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		Auth::logout();
+		// clean-up
+		$fusebox = null;
 		R::nuke();
 	}
 
