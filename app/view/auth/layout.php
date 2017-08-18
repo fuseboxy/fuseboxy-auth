@@ -2,7 +2,7 @@
 // flash
 ob_start();
 if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-	include F::config('appPath').'../test/utility-auth/flash.php';
+	include F::config('appPath').'../test/utility-auth/view/flash.php';
 } else {
 	include F::config('appPath').'view/global/layout.flash.php';
 }
@@ -18,7 +18,7 @@ $layout['content'] = ob_get_clean();
 
 // layout
 if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-	include F::config('appPath').'../test/utility-auth/layout.php';
+	include F::config('appPath').'../test/utility-auth/view/layout.php';
 } else {
 	include F::config('appPath').'view/global/layout.basic.php';
 }
