@@ -37,7 +37,8 @@ $scaffold = array(
 		'fullname' => array('placeholder' => 'Full Name'),
 		'email' => array('placeholder' => 'Email'),
 		'tel' => array('placeholder' => 'Phone')
-	)
+	),
+	'writeLog' => true,
 );
 
 
