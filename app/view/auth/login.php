@@ -1,30 +1,53 @@
-<form id="auth-login" class="form-horizontal col-md-12" role="form" method="post" action="<?php echo F::url($xfa['submit']); ?>">
-	<div class="form-group">
-		<div class="input-group">
-			<span class="input-group-addon"><i class="fa fa-user"></i></span>
-			<input class="form-control" type="text" name="data[username]" placeholder="Username or Email" required autofocus />
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="input-group">
-			<span class="input-group-addon"><i class="fa fa-key"></i></span>
-			<input class="form-control" type="password" name="data[password]" placeholder="Password" required />
-		</div>
-		<div class="checkbox" style="padding-left: 2em; padding-top: 1em;">
-			<label>
-				<input type="checkbox" name="data[remember]" value="30" /> Remember me
-			</label>
-		</div>
-	</div>
-	<div class="form-group text-center">
-		<input type="submit" class="btn btn-primary" value="Sign in" />
-	</div>
-	<?php if ( isset($xfa['forgot']) ) : ?>
+<?php /*
+<fusedoc>
+	<io>
+		<in>
+			<structure name="$xfa">
+				<string name="submit" />
+				<string name="forgot" optional="yes" comments="ajax-load" />
+			</structure>
+		</in>
+		<out>
+			<structure name="data" scope="form" oncondition="xfa.submit">
+				<string name="username" />
+				<string name="password" />
+				<number name="remember" />
+			</structure>
+		</out>
+	</io>
+</fusedoc>
+*/ ?>
+<div id="auth-login" class="pt-2 pb-1">
+	<form role="form" class="px-2" method="post" action="<?php echo F::url($xfa['submit']); ?>">
 		<div class="form-group">
-			<hr style="margin-bottom: 1em; margin-top: .5em" />
-			<a class="small" href="<?php echo F::url($xfa['forgot']); ?>" data-toggle="ajax-load" data-target="#auth-login" data-toggle-loading="none">
-				<em>Forgot password?</em>
-			</a>
+			<div class="input-group">
+				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-user"></i></span></div>
+				<input class="form-control" type="text" name="data[username]" placeholder="Username or email" required autofocus />
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-key"></i></span></div>
+				<input class="form-control" type="password" name="data[password]" placeholder="Password" required />
+			</div>
+		</div>
+		<div class="form-check small ml-1 mt-n2">
+			<input id="auth-login-remember" name="data[remember]" class="form-check-input" type="checkbox" value="30" />
+			<label class="form-check-label text-muted" for="auth-login-remember">Remember me</label>
+		</div>
+		<div class="form-group text-center pt-4">
+			<button type="submit" class="btn btn-primary">Sign in</button>
+		</div>
+	</form>
+	<?php if ( isset($xfa['forgot']) ) : ?>
+		<div class="border-top px-2 pt-3">
+			<a 
+				href="<?php echo F::url($xfa['forgot']); ?>" 
+				data-toggle="ajax-load" 
+				data-target="#auth-login" 
+				data-toggle-loading="none"
+				class="small font-italic"
+			>Forgot password?</a>
 		</div>
 	<?php endif; ?>
-</form>
+</div>

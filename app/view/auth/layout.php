@@ -11,7 +11,8 @@ $authLayout['flash'] = ob_get_clean();
 
 // login box
 ob_start();
-$layout['panelTitle'] = 'Sign In<br /><small>Admin Console</small>';
+$layout['panelTitle'] = 'Sign In';
+$layout['panelSubtitle'] = 'Admin Console';
 include F::config('appPath').'view/auth/panel.php';
 $layout['content'] = ob_get_clean();
 
