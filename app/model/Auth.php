@@ -73,6 +73,11 @@ class Auth {
 			self::$error = 'Password is incorrect';
 			return false;
 		}
+		// check captcha (when necessary)
+		if ( class_exists('Captcha') and Captcha::validate() === false ) {
+			self::$error = Captcha::error();
+			return false;
+		}
 		// persist user info when succeed
 		// ===> php does not allow storing bean (object) in session
 		$_SESSION['auth_user'] = $user->export();
