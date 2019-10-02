@@ -20,10 +20,10 @@
 
 ?>
 <div id="auth-panel" class="container" style="margin-top: 50vh; transform: translateY(-60%);">
-	<div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+	<div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-5 offset-lg-3">
 		<div class="card panel-default">
 			<div class="card-header text-center">
-				<h2><?php echo $layout['panelTitle']; ?></h2>
+				<h3><?php echo $layout['panelTitle']; ?></h3>
 				<h5 class="text-muted"><?php echo $layout['panelSubtitle']; ?></h5>
 			</div>
 			<div class="card-body"><?php
