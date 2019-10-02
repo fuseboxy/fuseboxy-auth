@@ -38,14 +38,14 @@ class Auth {
 
 
 	// sign in user
-	// ===> allow login by username or email
+	// ===> login by username or email
 	public static function login($data, $mode=0) {
 		// transform data (when necessary)
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
 		}
 		// validation
-		if ( !isset($data['username']) and !isset($data['email']) ) {
+		if ( !isset($data['username']) ) {
 			self::$error = 'Username or email is required';
 			return false;
 		}
@@ -54,34 +54,23 @@ class Auth {
 			return false;
 		}
 		// get user record
-		if ( isset($data['username']) ) {
-			$user = R::findOne('user', 'username = ? ', array($data['username']));
-		} else {
-			$user = R::findOne('user', 'email = ? ', array($data['email']));
-		}
+		$user = R::findOne('user', 'username = ? ', array($data['username']));
+		if ( empty($user->id) ) $userByEmail = R::findOne('user', 'email = ? ', array($data['username']));
 		// check user existence
-		if ( empty($user) ) {
-			self::$error = 'User record not found ';
-			if ( isset($data['username']) ) {
-				self::$error .= "(username={$data['username']})";
-			} else {
-				self::$error .= "(email={$data['email']})";
-			}
+		if ( empty($user->id) and empty($userByEmail->id) ) {
+			self::$error = "User record not found (username={$data['username']})";
 			return false;
 		}
 		// check user status
-		if ( $user->disabled ) {
-			self::$error = 'User account was disabled ';
-			if ( isset($data['username']) ) {
-				self::$error .= "(username={$data['username']})";
-			} else {
-				self::$error .= "(email={$data['email']})";
-			}
+		if ( !empty($user->disabled) or !empty($userByEmail->disabled) ) {
+			self::$error = 'User account was disabled';
+			if ( !empty($user->disabled) ) self::$error .= " (username={$data['username']})";
+			if ( !empty($userByEmail->disabled) ) self::$error .= " (email={$data['username']})";
 			return false;
 		}
 		// check password (case-sensitive)
 		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data['password'] ) {
-			self::$error = 'Wrong password';
+			self::$error = 'Password is incorrect';
 			return false;
 		}
 		// persist user info when succeed
