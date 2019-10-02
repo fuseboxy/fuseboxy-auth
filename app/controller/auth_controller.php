@@ -13,11 +13,12 @@ switch ( $fusebox->action ) :
 		if ( class_exists('Util') ) {
 			$xfa['forgot'] = 'auth.forgot';
 		}
-		// display
+		// display : captcha
 		if ( class_exists('Captcha') ) {
 			$layout['captcha'] = Captcha::getField();
 			F::error(Captcha::error(), $layout['captcha'] === false);
 		}
+		// display
 		ob_start();
 		include F::config('appPath').'view/auth/login.php';
 		$layout['content'] = ob_get_clean();
@@ -36,6 +37,11 @@ switch ( $fusebox->action ) :
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.index';
+		// display : captcha
+		if ( class_exists('Captcha') ) {
+			$layout['captcha'] = Captcha::getField();
+			F::error(Captcha::error(), $layout['captcha'] === false);
+		}
 		// display
 		ob_start();
 		include F::config('appPath').'view/auth/forgot.php';
