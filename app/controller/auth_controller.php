@@ -1,5 +1,4 @@
 <?php
-// run...
 switch ( $fusebox->action ) :
 
 
@@ -11,8 +10,14 @@ switch ( $fusebox->action ) :
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.login';
-		$xfa['forgot'] = 'auth.forgot';
+		if ( class_exists('Util') ) {
+			$xfa['forgot'] = 'auth.forgot';
+		}
 		// display
+		if ( class_exists('Captcha') ) {
+			$layout['captcha'] = Captcha::getField();
+			F::error(Captcha::error(), $layout['captcha'] === false);
+		}
 		ob_start();
 		include F::config('appPath').'view/auth/login.php';
 		$layout['content'] = ob_get_clean();
@@ -27,6 +32,7 @@ switch ( $fusebox->action ) :
 
 	// forgot password
 	case 'forgot':
+		F::error('Util component is required', !class_exists('Util'));
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.index';
