@@ -58,7 +58,7 @@ class Auth {
 		if ( empty($user->id) ) $userByEmail = R::findOne('user', 'email = ? ', array($data['username']));
 		// check user existence
 		if ( empty($user->id) and empty($userByEmail->id) ) {
-			self::$error = "User record not found (username={$data['username']})";
+			self::$error = "User not found (username={$data['username']})";
 			return false;
 		}
 		// check user status
