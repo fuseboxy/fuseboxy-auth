@@ -81,17 +81,19 @@ class Auth {
 		}
 		// get user record
 		$user = R::findOne('user', 'username = ? ', array($data['username']));
-		if ( empty($user->id) ) $userByEmail = R::findOne('user', 'email = ? ', array($data['username']));
+		if ( empty($user->id) ) {
+			$user = R::findOne('user', 'email = ? ', array($data['username']));
+		}
 		// check user existence
-		if ( empty($user->id) and empty($userByEmail->id) ) {
+		if ( empty($user->id) ) {
 			self::$error = "User account <strong><em>{$data['username']}</em></strong> not found";
 			return false;
 		}
 		// check user status
-		if ( !empty($user->disabled) or !empty($userByEmail->disabled) ) {
+		if ( !empty($user->disabled) ) {
 			self::$error = 'User account was disabled';
-			if ( !empty($user->disabled) ) self::$error .= " (username={$data['username']})";
-			if ( !empty($userByEmail->disabled) ) self::$error .= " (email={$data['username']})";
+			$field = ( $user->email == $data['username'] ) ? 'email' : 'username';
+			self::$error .= " ({$field}={$data['username']})";
 			return false;
 		}
 		// check password (case-sensitive)
