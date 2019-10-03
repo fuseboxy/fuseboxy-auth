@@ -2,7 +2,6 @@
 switch ( $fusebox->action ) :
 
 
-	// login form
 	case 'index':
 		// create super account (when necessary)
 		F::redirect('auth.init', R::count('user') == 0);
@@ -31,7 +30,6 @@ switch ( $fusebox->action ) :
 		break;
 
 
-	// forgot password
 	case 'forgot':
 		F::error('Util component is required', !class_exists('Util'));
 		// exit point
@@ -57,34 +55,13 @@ switch ( $fusebox->action ) :
 
 	case 'reset-password':
 		F::error('No email was provided', empty($arguments['data']['email']));
-		// check email
-		$arguments['data']['email'] = trim($arguments['data']['email']);
-		$user = R::findOne('user', 'email = ? ', array($arguments['data']['email']));
-		if ( empty($user->id) ) {
-			$_SESSION['flash'] = array('type' => 'danger', 'message' => "Email {{$arguments['data']['email']}} not found");
-			F::redirect('auth.forgot');
-		}
-		// random password
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		$password = substr(str_shuffle($chars), 0, 8);
-		// save new (random) password
-		$user->password = $password;
-		R::store($user);
-		// prepare mail
-		$mail = array(
-			'from_name' => 'Please do not reply',
-			'from' => 'noreply@metaseit.com',
-			'to' => $arguments['data']['email'],
-			'subject' => 'Your password was reset',
-			'body' => "New password : <strong>{$password}</strong>"
+		// proceed to reset password
+		$resetResult = Auth::resetPassword($arguments['data']['email']);
+		// show message
+		$_SESSION['flash'] = array(
+			'type'    => ( $resetResult === false ) ? 'danger' : 'success',
+			'message' => ( $resetResult === false ) ? Auth::error() : "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>",
 		);
-		// send mail (do not send when unit test)
-		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail($mail);
-		if ( !$mailResult ) {
-			$_SESSION['flash'] = array('type' => 'danger', 'message' => Util::error());
-		} else {
-			$_SESSION['flash'] = array('type' => 'success', 'message' => 'New password has been sent to your mailbox');
-		}
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
@@ -100,16 +77,10 @@ switch ( $fusebox->action ) :
 
 	case 'login':
 		F::error('No data were submitted', empty($arguments['data']));
-		// login (by username, then by email)
-		$result = Auth::login($arguments['data']);
-		// try email if not succeed...
-		if ( !$result ) {
-			$arguments['data']['email'] = $arguments['data']['username'];
-			unset($arguments['data']['username']);
-			$result = Auth::login($arguments['data']);
-		}
+		// proceed to login
+		$loginResult = Auth::login($arguments['data']);
 		// show message when login failure
-		if ( !$result ) {
+		if ( $loginResult === false ) {
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		}
 		// save log

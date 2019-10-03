@@ -2,13 +2,19 @@
 class Auth {
 
 
+
+
 	// define constant
 	const SKIP_PASSWORD_CHECK = 1;
+
+
 
 
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
+
+
 
 
 	// get information of simulated user or logged in user
@@ -19,10 +25,14 @@ class Auth {
 	}
 
 
+
+
 	// check whether active (sim > actual) user is specific group-role(s)
 	public static function activeUserIn($permissions=array()) {
 		return Sim::user() ? Sim::userIn($permissions) : self::userIn($permissions);
 	}
+
+
 
 
 	// check whether active (sim > actual) user is specific group(s)
@@ -31,10 +41,14 @@ class Auth {
 	}
 
 
+
+
 	// check whether active (sim > actual) user is specific role(s)
 	public static function activeUserInRole($roles=array()) {
 		return Sim::user() ? Sim::userInRole($roles) : self::userInRole($roles);
 	}
+
+
 
 
 	// sign in user
@@ -94,6 +108,8 @@ class Auth {
 	}
 
 
+
+
 	// sign out user
 	public static function logout() {
 		$endSim = Sim::end();
@@ -114,12 +130,39 @@ class Auth {
 	}
 
 
+
+
 	// refresh session (usually use after profile update)
 	public static function refresh() {
 		$user = R::load('user', self::user('id'));
 		$_SESSION['auth_user'] = $user->export();
 		return true;
 	}
+
+
+
+
+	// reset password
+	/**
+	<fusedoc>
+		<description>
+			reset password and send email to user
+		</description>
+		<io>
+			<in>
+				<string name="$email" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function resetPassword($email) {
+		return true;
+	}
+
+
 
 
 	// get (actual) user information
@@ -140,6 +183,8 @@ class Auth {
 			return false;
 		}
 	}
+
+
 
 
 	// check whether user (actual user by default) is in specific group-roles
@@ -199,6 +244,8 @@ class Auth {
 	}
 
 
+
+
 	// check whether (actual) user is specific group(s) of any role
 	public static function userInGroup($groups=array(), $user=null) {
 		if ( empty($user) ) $user = self::user();
@@ -208,6 +255,8 @@ class Auth {
 	}
 
 
+
+
 	// check whether (actual) user is specific role(s) of any group
 	public static function userInRole($roles=array(), $user=null) {
 		if ( empty($user) ) $user = self::user();
@@ -215,6 +264,8 @@ class Auth {
 		foreach ( $roles as $i => $val ) $roles[$i] = "*.{$val}";
 		return self::userIn($roles, $user);
 	}
+
+
 
 
 	// PRIVATE : auto-login user (when necessary)
@@ -229,6 +280,8 @@ class Auth {
 			'password' => $user->password,
 		));
 	}
+
+
 
 
 	// PRIVATE : cookie key
@@ -246,4 +299,6 @@ class Auth {
 	}
 
 
-}
+
+
+} // class
