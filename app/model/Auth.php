@@ -191,22 +191,24 @@ class Auth {
 			self::$error = "User account associated with <strong>{$email}</strong> was disabled";
 			return false;
 		}
-		// generate random password (and save)
+		// generate random password
 		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
-		$user->password = substr(str_shuffle($chars), 0, self::$resetPasswordLength);
-		R::store($user);
+		$random = substr(str_shuffle($chars), 0, self::$resetPasswordLength);
 		// send mail (do not send when unit test)
 		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail(array(
 			'from_name' => 'No Reply',
 			'from' => self::$resetPasswordFrom,
 			'to' => $user->email,
 			'subject' => 'Your password has been reset successfully',
-			'body' => 'New password: '.$user->password,
+			'body' => 'New password: '.$random,
 		));
 		if ( $mailResult === false ) {
 			self::$error = Util::error();
 			return false;
 		}
+		// save random password
+		$user->password = $random;
+		R::store($user);
 		// done!
 		return true;
 	}
