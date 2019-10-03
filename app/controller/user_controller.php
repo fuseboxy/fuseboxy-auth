@@ -5,7 +5,7 @@ F::redirect(F::config('defaultCommand'), !Auth::activeUserInRole('SUPER,ADMIN'))
 
 // default role
 if ( !isset($_SESSION['userController__userRole']) ) {
-	$_SESSION['userController__userRole'] = R::getCell("SELECT role FROM user ORDER BY role ");
+	$_SESSION['userController__userRole'] = Auth::user('role');
 }
 
 
