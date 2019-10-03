@@ -10,6 +10,13 @@ class Auth {
 
 
 
+	// configurable settings
+	public static $resetPasswordLength = 8;
+	public static $resetPasswordFrom = 'noreply@example.com';
+
+
+
+
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
@@ -103,7 +110,7 @@ class Auth {
 				setcookie(self::__cookieKey(), $user->username, time()+intval($data['remember'])*24*60*60);
 			}
 		}
-		// result
+		// done!
 		return true;
 	}
 
@@ -159,6 +166,49 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function resetPassword($email) {
+		$email = trim($email);
+		// check library
+		if ( !class_exists('Util') ) {
+			self::$error = 'Util component is required';
+			return false;
+		// check email format
+		} elseif ( empty($email) ) {
+			self::$error = 'Email is required';
+			return false;
+		} elseif ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+			self::$error = 'Invalid email address';
+			return false;
+		// check captcha (when necessary)
+		} elseif ( class_exists('Captcha') and Captcha::validate() === false ) {
+			self::$error = Captcha::error();
+			return false;
+		}
+		// check email existence
+		$user = R::findOne('user', 'email = ?', array($email));
+		if ( empty($user->id) ) {
+			self::$error = "No user account is associated with <strong>{$email}</strong>";
+			return false;
+		} elseif ( !empty($user->disabled) ) {
+			self::$error = "User account associated with <strong>{$email}</strong> was disabled";
+			return false;
+		}
+		// generate random password (and save)
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
+		$user->password = substr(str_shuffle($chars), 0, self::$resetPasswordLength);
+		R::store($user);
+		// send mail (do not send when unit test)
+		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail(array(
+			'from_name' => 'No Reply',
+			'from' => self::$resetPasswordFrom,
+			'to' => $user->email,
+			'subject' => 'Your password has been reset successfully',
+			'body' => 'New password: '.$user->password,
+		));
+		if ( $mailResult === false ) {
+			self::$error = Util::error();
+			return false;
+		}
+		// done!
 		return true;
 	}
 

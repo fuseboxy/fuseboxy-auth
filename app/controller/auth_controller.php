@@ -31,7 +31,6 @@ switch ( $fusebox->action ) :
 
 
 	case 'forgot':
-		F::error('Util component is required', !class_exists('Util'));
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.index';
