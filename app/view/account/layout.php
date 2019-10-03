@@ -1,4 +1,5 @@
 <?php
+// config
 $tabLayout = array(
 	'header' => '<h3>My Account</h3>',
 	'style' => 'tabs',
@@ -9,12 +10,12 @@ $tabLayout = array(
 );
 
 
-// display tabs
+// tab layout
 ob_start();
 include F::config('appPath').'app/view/global/tab.php';
 $layout['content'] = ob_get_clean();
 
 
-// wrap by global layout
+// global layout
 $layout['width'] = 'full';
 include F::config('appPath').'app/view/global/layout.php';
