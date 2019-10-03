@@ -61,6 +61,11 @@ class Auth {
 	// sign in user
 	// ===> login by username or email
 	public static function login($data, $mode=0) {
+		// check captcha (when necessary)
+		if ( class_exists('Captcha') and Captcha::validate() === false ) {
+			self::$error = Captcha::error();
+			return false;
+		}
 		// transform data (when necessary)
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
@@ -92,11 +97,6 @@ class Auth {
 		// check password (case-sensitive)
 		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data['password'] ) {
 			self::$error = 'Password is incorrect';
-			return false;
-		}
-		// check captcha (when necessary)
-		if ( class_exists('Captcha') and Captcha::validate() === false ) {
-			self::$error = Captcha::error();
 			return false;
 		}
 		// persist user info when succeed
@@ -149,7 +149,6 @@ class Auth {
 
 
 
-	// reset password
 	/**
 	<fusedoc>
 		<description>
@@ -167,8 +166,12 @@ class Auth {
 	*/
 	public static function resetPassword($email) {
 		$email = trim($email);
+		// check captcha (when necessary)
+		if ( class_exists('Captcha') and Captcha::validate() === false ) {
+			self::$error = Captcha::error();
+			return false;
 		// check library
-		if ( !class_exists('Util') ) {
+		} elseif ( !class_exists('Util') ) {
 			self::$error = 'Util component is required';
 			return false;
 		// check email format
@@ -177,10 +180,6 @@ class Auth {
 			return false;
 		} elseif ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
 			self::$error = 'Invalid email address';
-			return false;
-		// check captcha (when necessary)
-		} elseif ( class_exists('Captcha') and Captcha::validate() === false ) {
-			self::$error = Captcha::error();
 			return false;
 		}
 		// check email existence
