@@ -5,13 +5,19 @@ F::redirect(F::config('defaultCommand'), !Auth::activeUserInRole('SUPER,ADMIN'))
 
 // default role
 if ( !isset($_SESSION['userController__userRole']) ) {
-	$_SESSION['userController__userRole'] = Auth::user('role');
+	$_SESSION['userController__userRole'] = Auth::activeUser('role');
 }
 
 
 // change selected role (pass by url from layout)
 if ( isset($arguments['role']) ) {
 	$_SESSION['userController__userRole'] = $arguments['role'];
+}
+
+
+// disallow user to see role with higher privilege
+if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::activeUser('role') != 'SUPER' ) {
+	$_SESSION['userController__userRole'] = Auth::activeUser('role');
 }
 
 
