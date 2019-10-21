@@ -12,10 +12,10 @@ $tabLayout = array(
 
 // tab layout
 ob_start();
-include F::config('appPath').'app/view/global/tab.php';
+include F::config('appPath').'view/global/tab.php';
 $layout['content'] = ob_get_clean();
 
 
 // global layout
 $layout['width'] = 'full';
-include F::config('appPath').'app/view/global/layout.php';
+include F::config('appPath').'view/global/layout.php';
