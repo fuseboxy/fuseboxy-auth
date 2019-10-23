@@ -58,8 +58,27 @@ class Auth {
 
 
 
-	// sign in user
-	// ===> login by username or email
+	/**
+	<fusedoc>
+		<description>
+			sign in user
+			===> login by username or email
+		</description>
+		<io>
+			<in>
+				<structure name="$data">
+					<string name="username" />
+					<string name="password" />
+				</structure>
+				<number name="$mode" optional="yes" default="0" />
+			</in>
+			<out>
+				<string name="~self::__cookieKey()~" scope="$_COOKIE" />
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function login($data, $mode=0) {
 		// check captcha (when necessary)
 		if ( class_exists('Captcha') and Captcha::validate() === false ) {
@@ -218,7 +237,29 @@ class Auth {
 
 
 
-	// get (actual) user information
+	/**
+	<fusedoc>
+		<description>
+			get (actual) user information
+			===> auto-login is performed in this method
+			===> because this method is used for login checking
+		</description>
+		<io>
+			<in>
+				<string name="~cookieKey~" scope="$_COOKIE" optional="yes" comments="for auto-login" />
+				<structure name="auth_user" scope="$_SESSION" optional="yes">
+					<string name="~field~" />
+				</structure>
+				<string name="$key" optional="yes" />
+			</in>
+			<out>
+				<structure name="~return~" optional="yes" oncondition="when {key} is not defined" comments="all user fields" />
+				<string name="~return~" optional="yes" oncondition="when {key} is defined" comments="specific user field" />
+				<boolean name="~return~" value="false" optional="yes" oncondition="when failure : not logged in or {key} not found" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function user($key=null) {
 		// auto-login (when remember login)
 		if ( !isset($_SESSION['auth_user']) and isset($_COOKIE[self::__cookieKey()]) ) {
@@ -240,12 +281,24 @@ class Auth {
 
 
 
-	// check whether user (actual user by default) is in specific group-roles
-	// ===> user-permission string is in {GROUP}.{ROLE} convention
-	// ===> this function works for user assigned to single or multiple role(s)
-	// ===> if no group specified, then just consider it as role (of all group)
-	// ===> (case-insensitive)
-	// ===> e.g. DEPT_A.ADMIN,DEPT_B.USER
+	/**
+	<fusedoc>
+		<description>
+			check whether user (actual user by default) is in specific group-roles
+			===> user-permission string is in {GROUP}.{ROLE} convention
+			===> this function works for user assigned to single or multiple role(s)
+			===> if no group specified, then just consider it as role (of all group)
+			===> (case-insensitive)
+			===> e.g. DEPT_A.ADMIN,DEPT_B.USER
+		</description>
+		<io>
+			<in>
+			</in>
+			<out>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function userIn($queryPermissions=array(), $user=null) {
 		// default checking against actual user
 		if ( empty($user) ) {
