@@ -71,11 +71,11 @@ class Auth {
 			$data = array('username' => $data);
 		}
 		// validation
-		if ( !isset($data['username']) ) {
+		if ( empty($data['username']) ) {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( $mode != self::SKIP_PASSWORD_CHECK and !isset($data['password']) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and empty($data['password']) ) {
 			self::$error = 'Password is required';
 			return false;
 		}
