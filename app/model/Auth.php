@@ -11,7 +11,6 @@ class Auth {
 
 
 	// configurable settings
-	public static $resetPasswordLength = 8;
 	public static $resetPasswordFrom = 'noreply@example.com';
 
 
@@ -53,6 +52,29 @@ class Auth {
 	// check whether active (sim > actual) user is specific role(s)
 	public static function activeUserInRole($roles=array()) {
 		return Sim::user() ? Sim::userInRole($roles) : self::userInRole($roles);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			generate random password
+		</description>
+		<io>
+			<in>
+				<number name="length" default="8" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function generateRandomPassword($length=8) {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
+		return substr(str_shuffle($chars), 0, $length);
 	}
 
 
@@ -213,8 +235,7 @@ class Auth {
 			return false;
 		}
 		// generate random password
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
-		$random = substr(str_shuffle($chars), 0, self::$resetPasswordLength);
+		$random = self::generateRandomPassword();
 		// send mail (do not send when unit test)
 		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail(array(
 			'from_name' => 'No Reply',
