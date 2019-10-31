@@ -11,6 +11,7 @@ class Auth {
 
 
 	// configurable settings
+	public static $passwordHash = true;
 	public static $resetPasswordFrom = 'noreply@example.com';
 
 
