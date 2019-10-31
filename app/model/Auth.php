@@ -11,7 +11,7 @@ class Auth {
 
 
 	// configurable settings
-	public static $passwordHash = true;
+	public static $hashPassword = true;
 	public static $resetPasswordFrom = 'noreply@example.com';
 
 
@@ -113,7 +113,7 @@ class Auth {
 			$data = array('username' => $data);
 		}
 		// create password-hash (when necessary)
-		if ( self::$passwordHash and !isset($data['password_hash']) and isset($data['password']) ) {
+		if ( self::$hashPassword and !isset($data['password_hash']) and isset($data['password']) ) {
 			$data['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
 		}
 		// validation
@@ -121,7 +121,7 @@ class Auth {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( $mode != self::SKIP_PASSWORD_CHECK and empty( $data[ self::$passwordHash ? 'password_hash' : 'password' ] ) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and empty( $data[ self::$hashPassword ? 'password_hash' : 'password' ] ) ) {
 			self::$error = 'Password is required';
 			return false;
 		}
@@ -143,7 +143,7 @@ class Auth {
 			return false;
 		}
 		// check password (case-sensitive)
-		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data[ self::$passwordHash ? 'password_hash' : 'password' ] ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data[ self::$hashPassword ? 'password_hash' : 'password' ] ) {
 			self::$error = 'Password is incorrect';
 			return false;
 		}
@@ -254,7 +254,7 @@ class Auth {
 			return false;
 		}
 		// save random password
-		$user->password = self::$passwordHash ? password_hash($random, PASSWORD_DEFAULT) : $random;
+		$user->password = self::$hashPassword ? password_hash($random, PASSWORD_DEFAULT) : $random;
 		R::store($user);
 		// done!
 		return true;
@@ -409,7 +409,7 @@ class Auth {
 		}
 		return self::login(array(
 			'username' => $user->username,
-			( self::$passwordHash ? 'password_hash' : 'password' ) => $user->password,
+			( self::$hashPassword ? 'password_hash' : 'password' ) => $user->password,
 		));
 	}
 

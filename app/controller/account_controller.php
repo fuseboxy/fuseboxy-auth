@@ -78,7 +78,7 @@ switch ( $fusebox->action ) :
 		}
 		// update record
 		$bean = R::load('user', Auth::user('id'));
-		$bean->password = Auth::$passwordHash ? password_hash($arguments['new_password'], PASSWORD_DEFAULT) : $arguments['new_password'];
+		$bean->password = Auth::$hashPassword ? password_hash($arguments['new_password'], PASSWORD_DEFAULT) : $arguments['new_password'];
 		$saveResult = R::store($bean);
 		F::error('Error occurred while changing password', empty($saveResult));
 		// refresh session
