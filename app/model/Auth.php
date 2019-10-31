@@ -250,7 +250,7 @@ class Auth {
 			return false;
 		}
 		// save random password
-		$user->password = $random;
+		$user->password = self::$passwordHash ? password_hash($random, PASSWORD_DEFAULT) : $random;
 		R::store($user);
 		// done!
 		return true;
