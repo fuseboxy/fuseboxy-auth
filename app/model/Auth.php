@@ -139,7 +139,7 @@ class Auth {
 			return false;
 		}
 		// check password (case-sensitive)
-		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data['password'] ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != ( self::$passwordHash ? password_hash($data['password'], PASSWORD_DEFAULT) : $data['password'] ) ) {
 			self::$error = 'Password is incorrect';
 			return false;
 		}
