@@ -24,13 +24,13 @@
 	<form role="form" class="px-2" method="post" action="<?php echo F::url($xfa['submit']); ?>">
 		<div class="form-group">
 			<div class="input-group">
-				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-user"></i></span></div>
+				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
 				<input class="form-control" type="text" name="data[username]" placeholder="Username or email" required autofocus />
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="input-group">
-				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-key"></i></span></div>
+				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
 				<input class="form-control" type="password" name="data[password]" placeholder="Password" required />
 			</div>
 		</div>

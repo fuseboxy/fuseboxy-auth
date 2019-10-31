@@ -23,7 +23,7 @@
 		<div class="form-group">
 			<label class="small text-muted">To reset the password, please enter your email:</label>
 			<div class="input-group">
-				<span class="input-group-prepend"><span class="input-group-text"><i class="fa fa-envelope"></i></span></span>
+				<span class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span></span>
 				<input class="form-control" type="text" name="data[email]" placeholder="Email address" required autofocus />
 			</div>
 		</div>
