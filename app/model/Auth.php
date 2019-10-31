@@ -91,7 +91,7 @@ class Auth {
 			<in>
 				<structure name="$data">
 					<string name="username" />
-					<string name="password" />
+					<string name="password|password_hash" />
 				</structure>
 				<number name="$mode" optional="yes" default="0" />
 			</in>
@@ -112,12 +112,16 @@ class Auth {
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
 		}
+		// create password-hash (when necessary)
+		if ( self::$passwordHash and !isset($data['password_hash']) and isset($data['password']) ) {
+			$data['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
+		}
 		// validation
 		if ( empty($data['username']) ) {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( $mode != self::SKIP_PASSWORD_CHECK and empty($data['password']) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and empty( $data[ self::$passwordHash ? 'password_hash' : 'password' ] ) ) {
 			self::$error = 'Password is required';
 			return false;
 		}
@@ -139,7 +143,7 @@ class Auth {
 			return false;
 		}
 		// check password (case-sensitive)
-		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != ( self::$passwordHash ? password_hash($data['password'], PASSWORD_DEFAULT) : $data['password'] ) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data[ self::$passwordHash ? 'password_hash' : 'password' ] ) {
 			self::$error = 'Password is incorrect';
 			return false;
 		}
@@ -405,7 +409,7 @@ class Auth {
 		}
 		return self::login(array(
 			'username' => $user->username,
-			'password' => $user->password,
+			( self::$passwordHash ? 'password_hash' : 'password' ) => $user->password,
 		));
 	}
 
