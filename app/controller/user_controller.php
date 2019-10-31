@@ -21,6 +21,12 @@ if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::activeUser('role
 }
 
 
+// hash password when save (when neccessary)
+if ( Auth::$passwordHash and F::is('*.save') and isset($arguments['data']['password']) ) {
+	$arguments['data']['password'] = password_hash($arguments['data']['password'], PASSWORD_DEFAULT);
+}
+
+
 // config
 $scaffold = array(
 	'beanType' => 'user',
@@ -38,7 +44,7 @@ $scaffold = array(
 	'fieldConfig' => array(
 		'id' => array(),
 		'username' => array('placeholder' => 'Username'),
-		'password' => array('placeholder' => 'Password'),
+		'password' => Auth::$passwordHash ? array('format' => 'output', 'value' => '(password hashed)') : array('placeholder' => 'Password'),
 		'role' => array('default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
 		'fullname' => array('label' => 'Full Name', 'placeholder' => 'Full Name'),
 		'email' => array('placeholder' => 'Email'),
