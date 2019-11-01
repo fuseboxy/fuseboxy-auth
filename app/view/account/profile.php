@@ -50,7 +50,7 @@
 	<div class="form-group row mt-4">
 		<div class="col-10 offset-2">
 			<button type="submit" class="btn btn-primary mr-1">Save changes</button>
-			<button type="reset" class="btn btn-light">Reset</button>
+			<button type="reset" class="btn btn-link text-dark">Cancel</button>
 		</div>
 	</div>
 </form>
