@@ -160,19 +160,13 @@ switch ( $fusebox->action ) :
 
 
 	case 'init':
-		F::error('User account already exists', R::count('user') != 0);
-		// create default user
-		$bean = R::dispense('user');
-		$bean->import(array(
-			'username' => 'developer',
-			'password' => '12345678',
-			'role' => 'SUPER',
-		));
-		$result = R::store($bean);
+		// create first user (when necessary)
+		$initResult = Auth::initUser();
+		F::error(Auth::error(), $initResult === false);
 		// show message
 		$_SESSION['flash'] = array(
 			'type' => 'success',
-			'message' => "Super account was created ({$bean->username} : {$bean->password})"
+			'message' => $initResult['message'],
 		);
 		// save log
 		if ( method_exists('Log', 'write') ) {

@@ -106,6 +106,56 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
+			init first user account
+		</description>
+		<io>
+			<in>
+			</in>
+			<out>
+				<structure name="~return~">
+					<number name="id" comments="new user" />
+					<string name="message" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initUser() {
+		// validation
+		if ( R::count('user') != 0 ) {
+			self::$error = 'User accounts already exist';
+			return false;
+		}
+		// define default password
+		$defaultPwd = '123456789';
+		// create default user
+		$bean = R::dispense('user');
+		$bean->import(array(
+			'role' => 'SUPER',
+			'username' => 'developer',
+			'password' => self::hashPassword($defaultPwd),
+			'disabled' => 0,
+		));
+		$id = R::store($bean);
+		// check result
+		if ( empty($id) ) {
+			self::$error = 'Error occurred while creating first user account';
+			return false;
+		}
+		// done!
+		return array(
+			'id' => $id,
+			'type' => 'success',
+			'message' => "Super account created ({$bean->username}:{$defaultPwd})",
+		);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			sign in user
 			===> login by username or email
 		</description>
