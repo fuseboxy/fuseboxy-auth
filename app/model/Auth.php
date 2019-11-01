@@ -472,7 +472,21 @@ class Auth {
 
 
 
-	// PRIVATE : auto-login user (when necessary)
+	/**
+	<fusedoc>
+		<description>
+			PRIVATE : auto-login user (when necessary)
+		</description>
+		<io>
+			<in>
+				<string name="~self::__cookieKey()~" scope="cookie" comments="username" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	private static function __autoLoginByCookie() {
 		$user = R::findOne('user', 'username = ? ', array($_COOKIE[self::__cookieKey()]));
 		if ( empty($user->id) ) {
@@ -491,7 +505,7 @@ class Auth {
 	// PRIVATE : cookie key
 	// ===> cannot use session_name() to define property
 	// ===> use function instead
-	public static function __cookieKey() {
+	private static function __cookieKey() {
 		return 'auth_user_'.session_name();
 	}
 	public static function cookieKey() {
