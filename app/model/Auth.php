@@ -99,7 +99,7 @@ class Auth {
 		</io>
 	*/
 	public static function hashPassword($pwd) {
-		return self::$hashPassword ? password_hash($pwd, PASSWORD_DEFAULT) : $pwd;
+		return self::$hashPassword ? hash('sha512', $pwd) : $pwd;
 	}
 
 
@@ -129,13 +129,13 @@ class Auth {
 			return false;
 		}
 		// define default password
-		$defaultPwd = '123456789';
+		$defaultPassword = '123456789';
 		// create default user
 		$bean = R::dispense('user');
 		$bean->import(array(
 			'role' => 'SUPER',
 			'username' => 'developer',
-			'password' => self::hashPassword($defaultPwd),
+			'password' => self::hashPassword($defaultPassword),
 			'disabled' => 0,
 		));
 		$id = R::store($bean);
@@ -148,7 +148,7 @@ class Auth {
 		return array(
 			'id' => $id,
 			'type' => 'success',
-			'message' => "Super account created ({$bean->username}:{$defaultPwd})",
+			'message' => "Super account created ({$bean->username}:{$defaultPassword})",
 		);
 	}
 
