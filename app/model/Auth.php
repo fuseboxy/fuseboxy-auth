@@ -84,6 +84,28 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
+			perform password hashing when necessary
+		</description>
+		<io>
+			<in>
+				<boolean name="$hashPassword" scope="self" />
+				<string name="$pwd" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	*/
+	public static function hashPassword($pwd) {
+		return self::$hashPassword ? password_hash($pwd, PASSWORD_DEFAULT) : $pwd;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			sign in user
 			===> login by username or email
 		</description>
