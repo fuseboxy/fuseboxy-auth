@@ -5,7 +5,9 @@ class Auth {
 
 
 	// define constant
-	const SKIP_PASSWORD_CHECK = 1;
+	const NORMAL_PASSWORD_CHECK = 0;
+	const SKIP_PASSWORD_CHECK   = 1;
+	const HASHED_PASSWORD_CHECK = 2;
 
 
 
@@ -156,16 +158,15 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
-			sign in user
-			===> login by username or email
+			login user (by username or email)
 		</description>
 		<io>
 			<in>
 				<structure name="$data">
 					<string name="username" />
-					<string name="password|password_hash" />
+					<string name="password" />
 				</structure>
-				<number name="$mode" optional="yes" default="0" />
+				<number name="$mode" optional="yes" default="~NORMAL_PASSWORD_CHECK~" />
 			</in>
 			<out>
 				<string name="~self::__cookieKey()~" scope="$_COOKIE" />
@@ -184,16 +185,12 @@ class Auth {
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
 		}
-		// create password-hash (when necessary)
-		if ( self::$hashPassword and !isset($data['password_hash']) and isset($data['password']) ) {
-			$data['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
-		}
 		// validation
 		if ( empty($data['username']) ) {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( $mode != self::SKIP_PASSWORD_CHECK and empty( $data[ self::$hashPassword ? 'password_hash' : 'password' ] ) ) {
+		if ( $mode != self::SKIP_PASSWORD_CHECK and empty($data['password']) ) {
 			self::$error = 'Password is required';
 			return false;
 		}
@@ -215,7 +212,10 @@ class Auth {
 			return false;
 		}
 		// check password (case-sensitive)
-		if ( $mode != self::SKIP_PASSWORD_CHECK and $user->password != $data[ self::$hashPassword ? 'password_hash' : 'password' ] ) {
+		if ( false
+			or ( $mode == self::HASHED_PASSWORD_CHECK and $user->password != $data['password'] )
+			or ( $mode == self::NORMAL_PASSWORD_CHECK and $user->password != self::hashPassword($data['password']) )
+		) {
 			self::$error = 'Password is incorrect';
 			return false;
 		}
@@ -326,7 +326,7 @@ class Auth {
 			return false;
 		}
 		// save random password
-		$user->password = self::$hashPassword ? password_hash($random, PASSWORD_DEFAULT) : $random;
+		$user->password = self::hashPassword($random);
 		R::store($user);
 		// done!
 		return true;
@@ -481,8 +481,8 @@ class Auth {
 		}
 		return self::login(array(
 			'username' => $user->username,
-			( self::$hashPassword ? 'password_hash' : 'password' ) => $user->password,
-		));
+			'password' => $user->password,
+		), self::HASHED_PASSWORD_CHECK);
 	}
 
 
