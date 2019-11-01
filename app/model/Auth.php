@@ -112,17 +112,20 @@ class Auth {
 		</description>
 		<io>
 			<in>
+				<structure name="&$user" optional="yes" comments="pass by reference" />
 			</in>
 			<out>
-				<structure name="~return~">
-					<number name="id" comments="new user" />
-					<string name="message" />
+				<boolean name="~return~" />
+				<structure name="$user">
+					<number name="id" />
+					<string name="username" />
+					<string name="password" />
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function initUser() {
+	public static function initUser(&$user=null) {
 		// validation
 		if ( R::count('user') != 0 ) {
 			self::$error = 'User accounts already exist';
@@ -144,12 +147,15 @@ class Auth {
 			self::$error = 'Error occurred while creating first user account';
 			return false;
 		}
-		// done!
-		return array(
+		// return extra info
+		$user = array(
 			'id' => $id,
-			'type' => 'success',
-			'message' => "Super account created ({$bean->username}:{$defaultPassword})",
+			'role' => $bean->role,
+			'username' => $bean->username,
+			'password' => $defaultPassword,
 		);
+		// done!
+		return true;
 	}
 
 

@@ -161,12 +161,12 @@ switch ( $fusebox->action ) :
 
 	case 'init':
 		// create first user (when necessary)
-		$initResult = Auth::initUser();
+		$initResult = Auth::initUser($defaultUser);
 		F::error(Auth::error(), $initResult === false);
 		// show message
 		$_SESSION['flash'] = array(
-			'type' => 'success',
-			'message' => $initResult['message'],
+			'type'    => ( $initResult === false ) ? 'danger' : 'success',
+			'message' => ( $initResult === false ) ? Auth::error() : "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})",
 		);
 		// save log
 		if ( method_exists('Log', 'write') ) {
