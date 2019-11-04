@@ -56,7 +56,7 @@ switch ( $fusebox->action ) :
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
-		$xfa['login'] = 'auth.index';
+		$xfa['login'] = 'auth.form';
 		// display : captcha
 		if ( class_exists('Captcha') ) {
 			$layout['captcha'] = Captcha::getField();
