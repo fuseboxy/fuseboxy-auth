@@ -3,10 +3,10 @@ switch ( $fusebox->action ) :
 
 
 	case 'index':
-		// create super account (when necessary)
-		F::redirect('auth.init', R::count('user') == 0);
 		// go to default page when user already logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
+		// create default account (when necessary)
+		F::redirect('auth.init', R::count('user') == 0);
 		// exit point
 		$xfa['submit'] = 'auth.login';
 		if ( class_exists('Util') ) {
@@ -31,6 +31,8 @@ switch ( $fusebox->action ) :
 
 
 	case 'forgot':
+		// go to default page when user already logged in
+		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.index';
