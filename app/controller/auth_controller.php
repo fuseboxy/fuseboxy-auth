@@ -3,7 +3,28 @@ switch ( $fusebox->action ) :
 
 
 	case 'index':
-		// go to default page when user already logged in
+		// go to default page when logged in
+		F::redirect(F::config('defaultCommand'), Auth::user());
+		// go to login form when no CAS login
+		F::redirect('auth.form', !file_exists(__DIR__.'/cas_controller.php'));
+		// exit point
+		$xfa['cas'] = 'cas';
+		$xfa['local'] = 'auth.form';
+		// display
+		ob_start();
+		include F::config('appPath').'view/auth/index.php';
+		$layout['content'] = ob_get_clean();
+		// layout (when necessary)
+		if ( F::ajaxRequest() ) {
+			echo $layout['content'];
+		} else {
+			include F::config('appPath').'view/auth/layout.php';
+		}
+		break;
+
+
+	case 'form':
+		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// create default account (when necessary)
 		F::redirect('auth.init', R::count('user') == 0);
@@ -31,7 +52,7 @@ switch ( $fusebox->action ) :
 
 
 	case 'forgot':
-		// go to default page when user already logged in
+		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
 		$xfa['submit'] = 'auth.reset-password';
@@ -101,7 +122,7 @@ switch ( $fusebox->action ) :
 			F::error(Log::error(), !$logResult);
 		}
 		// return to login form
-		F::redirect('auth');
+		F::redirect('auth.form');
 		break;
 
 
@@ -117,7 +138,7 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), !$logResult);
 		}
-		// return to login form, or...
+		// return to index page
 		F::redirect('auth');
 		break;
 
@@ -180,7 +201,7 @@ switch ( $fusebox->action ) :
 			F::error(Log::error(), !$logResult);
 		}
 		// return to form
-		F::redirect('auth');
+		F::redirect('auth.form');
 		break;
 
 
