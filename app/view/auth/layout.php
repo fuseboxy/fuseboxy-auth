@@ -10,6 +10,7 @@ $authLayout['flash'] = ob_get_clean();
 
 
 // login box
+$xfa['auth'] = 'auth';
 ob_start();
 $layout['panelTitle'] = 'Sign In';
 $layout['panelSubtitle'] = 'Admin Console';
