@@ -30,7 +30,7 @@ if ( F::is('*.save') and isset($arguments['data']['password']) ) {
 // config
 $scaffold = array(
 	'beanType' => 'user',
-	'editMode' => 'modal',
+	'editMode' => 'inline',
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
 	'layoutPath' => F::config('appPath').'view/user/layout.php',
 	'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
