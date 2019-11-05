@@ -4,17 +4,17 @@ class Auth {
 
 
 
+	// configurable settings
+	public static $hashPassword = true;
+	public static $resetPasswordFrom = 'noreply@example.com';
+
+
+
+
 	// define constant
 	const NORMAL_PASSWORD_CHECK = 0;
 	const SKIP_PASSWORD_CHECK   = 1;
 	const HASHED_PASSWORD_CHECK = 2;
-
-
-
-
-	// configurable settings
-	public static $hashPassword = true;
-	public static $resetPasswordFrom = 'noreply@example.com';
 
 
 

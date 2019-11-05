@@ -30,7 +30,7 @@ if ( F::is('*.save') and isset($arguments['data']['password']) ) {
 // config
 $scaffold = array(
 	'beanType' => 'user',
-	'editMode' => 'inline',
+	'editMode' => 'modal',
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
 	'layoutPath' => F::config('appPath').'view/user/layout.php',
 	'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
@@ -38,7 +38,13 @@ $scaffold = array(
 	'listField' => array(
 		'id' => '5%',
 		'role|fullname' => '20%',
-		'username|password' => '20%',
+		call_user_func(function(){
+			if ( !Auth::$hashPassword or F::is('*.new,*.quick_new') ) {
+				return 'username|password';
+			} else {
+				return 'username';
+			}
+		}) => '20%',
 		'email|tel' => ''
 	),
 	'fieldConfig' => array(
