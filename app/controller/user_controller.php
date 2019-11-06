@@ -61,5 +61,4 @@ $scaffold = array(
 
 
 // run!
-$layout['width'] = 'full';
 include F::config('appPath').'controller/scaffold_controller.php';

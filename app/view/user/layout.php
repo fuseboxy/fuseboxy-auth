@@ -31,4 +31,5 @@ $layout['content'] = ob_get_clean();
 
 
 // global layout
+$layout['width'] = 'full';
 include F::config('appPath').'view/global/layout.php';
