@@ -116,12 +116,12 @@ switch ( $fusebox->action ) :
 			));
 			F::error(Log::error(), $logResult === false);
 		}
-		// show message (when login failed)
+		// failure : show message
 		if ( $loginResult === false ) {
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 			F::redirect('auth.form');
 		}
-		// go to default page (when login succeeded)
+		// success : go to default page
 		F::redirect(F::config('defaultCommand'));
 		break;
 
