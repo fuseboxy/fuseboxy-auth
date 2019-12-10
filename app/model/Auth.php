@@ -13,8 +13,9 @@ class Auth {
 
 	// define constant
 	const NORMAL_PASSWORD_CHECK = 0;
-	const SKIP_PASSWORD_CHECK   = 1;
-	const HASHED_PASSWORD_CHECK = 2;
+	const HASHED_PASSWORD_CHECK = 1;
+	const SKIP_PASSWORD_CHECK   = 2;
+	const SKIP_ALL_CHECK        = 3;
 
 
 
@@ -183,7 +184,7 @@ class Auth {
 	*/
 	public static function login($data, $mode=0) {
 		// check captcha (when necessary)
-		if ( class_exists('Captcha') and Captcha::validate() === false ) {
+		if ( class_exists('Captcha') and Captcha::validate() === false and $mode != self::SKIP_ALL_CHECK ) {
 			self::$error = Captcha::error();
 			return false;
 		}
@@ -196,7 +197,7 @@ class Auth {
 			self::$error = 'Username or email is required';
 			return false;
 		}
-		if ( $mode != self::SKIP_PASSWORD_CHECK and empty($data['password']) ) {
+		if ( empty($data['password']) and $mode != self::SKIP_PASSWORD_CHECK and $mode != self::SKIP_ALL_CHECK ) {
 			self::$error = 'Password is required';
 			return false;
 		}
