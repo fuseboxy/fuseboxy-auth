@@ -84,7 +84,7 @@ switch ( $fusebox->action ) :
 			'type'    => ( $resetResult === false ) ? 'danger' : 'success',
 			'message' => ( $resetResult === false ) ? Auth::error() : "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>",
 		);
-		// save log
+		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'reset-password',
@@ -101,11 +101,7 @@ switch ( $fusebox->action ) :
 		F::error('No data were submitted', empty($arguments['data']));
 		// proceed to login
 		$loginResult = Auth::login($arguments['data']);
-		// show message when login failure
-		if ( $loginResult === false ) {
-			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
-		}
-		// save log
+		// write log
 		if ( isset($arguments['data']['email']) ) {
 			$uid = $arguments['data']['email'];
 		} elseif ( isset($arguments['data']['username']) ) {
@@ -113,13 +109,16 @@ switch ( $fusebox->action ) :
 		} else {
 			$uid = '';
 		}
-		$ip = $_SERVER['REMOTE_ADDR'];
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'LOGIN',
-				'remark' => ( $loginResult === false ) ? "FAILED\n[username] {$uid}\n[ip] {$ip}" : null,
+				'remark' => ( $loginResult === false ) ? "FAILED\n[username] {$uid}\n[ip] {$_SERVER['REMOTE_ADDR']}" : null,
 			));
 			F::error(Log::error(), !$logResult);
+		}
+		// show failure message (when neccessary)
+		if ( $loginResult === false ) {
+			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		}
 		// return to login form
 		F::redirect('auth.form');
@@ -130,7 +129,7 @@ switch ( $fusebox->action ) :
 		$username = Auth::user('username');
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), !$logoutResult);
-		// save log
+		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'LOGOUT',
@@ -149,7 +148,7 @@ switch ( $fusebox->action ) :
 		// start (or show error when neccessary)
 		$simResult = Sim::start($arguments['user_id']);
 		F::error(Sim::error(), !$simResult);
-		// save log
+		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write('START_USER_SIM');
 			F::error(Log::error(), !$logResult);
@@ -167,7 +166,7 @@ switch ( $fusebox->action ) :
 		$sim_user = Sim::user('username');
 		$simResult = Sim::end();
 		F::error(Sim::error(), !$simResult);
-		// save log
+		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'END_USER_SIM',
@@ -191,7 +190,7 @@ switch ( $fusebox->action ) :
 			'type'    => ( $initResult === false ) ? 'danger' : 'success',
 			'message' => ( $initResult === false ) ? Auth::error() : "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})",
 		);
-		// save log
+		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'username' => 'SYSTEM',
