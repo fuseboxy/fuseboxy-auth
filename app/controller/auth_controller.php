@@ -90,7 +90,7 @@ switch ( $fusebox->action ) :
 				'action' => 'reset-password',
 				'remark' => $mailResult ? '' : Util::error(),
 			));
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// show message
 		F::redirect('auth.forgot');
@@ -114,7 +114,7 @@ switch ( $fusebox->action ) :
 				'action' => 'LOGIN',
 				'remark' => ( $loginResult === false ) ? "FAILED\n[username] {$uid}\n[ip] {$_SERVER['REMOTE_ADDR']}" : null,
 			));
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// show failure message (when neccessary)
 		if ( $loginResult === false ) {
@@ -128,14 +128,14 @@ switch ( $fusebox->action ) :
 	case 'logout':
 		$username = Auth::user('username');
 		$logoutResult = Auth::logout();
-		F::error(Auth::error(), !$logoutResult);
+		F::error(Auth::error(), $logoutResult === false);
 		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'LOGOUT',
 				'username' => $username
 			));
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// return to index page
 		F::redirect('auth');
@@ -147,11 +147,11 @@ switch ( $fusebox->action ) :
 		F::error('No user was specified', empty($arguments['user_id']));
 		// start (or show error when neccessary)
 		$simResult = Sim::start($arguments['user_id']);
-		F::error(Sim::error(), !$simResult);
+		F::error(Sim::error(), $simResult === false);
 		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write('START_USER_SIM');
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// go to default page, or...
 		// ===> go to (base64-encoded) callback if defined
@@ -165,14 +165,14 @@ switch ( $fusebox->action ) :
 		// end (or show error when necessary)
 		$sim_user = Sim::user('username');
 		$simResult = Sim::end();
-		F::error(Sim::error(), !$simResult);
+		F::error(Sim::error(), $simResult === false);
 		// write log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'END_USER_SIM',
 				'sim_user' => $sim_user
 			));
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// go to default page, or...
 		// ===> go to (base64-encoded) callback if defined
@@ -197,7 +197,7 @@ switch ( $fusebox->action ) :
 				'action' => 'INIT_USER',
 				'remark' => $_SESSION['flash']['message'],
 			));
-			F::error(Log::error(), !$logResult);
+			F::error(Log::error(), $logResult === false);
 		}
 		// return to form
 		F::redirect('auth.form');
