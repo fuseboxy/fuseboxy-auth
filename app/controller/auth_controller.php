@@ -117,7 +117,7 @@ switch ( $fusebox->action ) :
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
 				'action' => 'LOGIN',
-				'remark' => $result ? '' : "FAILED\n[username] {$uid}\n[ip] {$ip}",
+				'remark' => ( $loginResult === false ) ? "FAILED\n[username] {$uid}\n[ip] {$ip}" : null,
 			));
 			F::error(Log::error(), !$logResult);
 		}
@@ -128,8 +128,8 @@ switch ( $fusebox->action ) :
 
 	case 'logout':
 		$username = Auth::user('username');
-		$result = Auth::logout();
-		F::error(Auth::error(), !$result);
+		$logoutResult = Auth::logout();
+		F::error(Auth::error(), !$logoutResult);
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
@@ -147,8 +147,8 @@ switch ( $fusebox->action ) :
 		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
 		F::error('No user was specified', empty($arguments['user_id']));
 		// start (or show error when neccessary)
-		$result = Sim::start($arguments['user_id']);
-		F::error(Sim::error(), !$result);
+		$simResult = Sim::start($arguments['user_id']);
+		F::error(Sim::error(), !$simResult);
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write('START_USER_SIM');
@@ -165,8 +165,8 @@ switch ( $fusebox->action ) :
 		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
 		// end (or show error when necessary)
 		$sim_user = Sim::user('username');
-		$result = Sim::end();
-		F::error(Sim::error(), !$result);
+		$simResult = Sim::end();
+		F::error(Sim::error(), !$simResult);
 		// save log
 		if ( method_exists('Log', 'write') ) {
 			$logResult = Log::write(array(
