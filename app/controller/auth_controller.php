@@ -143,45 +143,6 @@ switch ( $fusebox->action ) :
 		break;
 
 
-	case 'start-sim':
-		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
-		F::error('No user was specified', empty($arguments['user_id']));
-		// start (or show error when neccessary)
-		$simResult = Sim::start($arguments['user_id']);
-		F::error(Sim::error(), $simResult === false);
-		// write log
-		if ( method_exists('Log', 'write') ) {
-			$logResult = Log::write('START_USER_SIM');
-			F::error(Log::error(), $logResult === false);
-		}
-		// go to default page, or...
-		// ===> go to (base64-encoded) callback if defined
-		F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
-		F::redirect(base64_decode($arguments['callback']));
-		break;
-
-
-	case 'end-sim':
-		F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
-		// end (or show error when necessary)
-		$sim_user = Sim::user('username');
-		$simResult = Sim::end();
-		F::error(Sim::error(), $simResult === false);
-		// write log
-		if ( method_exists('Log', 'write') ) {
-			$logResult = Log::write(array(
-				'action' => 'END_USER_SIM',
-				'sim_user' => $sim_user
-			));
-			F::error(Log::error(), $logResult === false);
-		}
-		// go to default page, or...
-		// ===> go to (base64-encoded) callback if defined
-		F::redirect(F::config('defaultCommand'), empty($arguments['callback']));
-		F::redirect(base64_decode($arguments['callback']));
-		break;
-
-
 	case 'init':
 		// create first user (when necessary)
 		$initResult = Auth::initUser($defaultUser);
