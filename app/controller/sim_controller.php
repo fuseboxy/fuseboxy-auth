@@ -17,10 +17,11 @@ switch ( $fusebox->action ) :
 		include F::config('appPath').'view/sim/index.php';
 		$layout['content'] = ob_get_clean();
 		// layout
-		$layout['title'] = $layout['modalTitle'] = 'User Simulation';
 		if ( F::ajaxRequest() ) {
+			$layout['modalTitle'] = 'User Simulation';
 			include F::config('appPath').'view/global/modal.php';
 		} else {
+			$arguments['breadcrumb'] = array('User Simulation');
 			include F::config('appPath').'view/global/layout.php';
 		}
 		break;
