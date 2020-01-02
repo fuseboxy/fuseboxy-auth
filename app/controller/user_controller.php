@@ -46,25 +46,24 @@ $scaffold = array(
 		'email|tel' => '25%',
 	),
 	'fieldConfig' => array(
-		'--' => array('format' => 'output', 'value' => '<hr class="my-2 mx-0" />'),
 		'id' => array(),
-		'role' => array('default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
-		'username' => array('placeholder' => true),
+		'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
+		'username' => array('icon' => 'fa fa-user small', 'placeholder' => true),
 		'password' => call_user_func(function(){
 			// no hash : simply show and edit password as normal field
 			if ( !Auth::$hashPassword ) {
-				return array('placeholder' => true);
+				return array('icon' => 'fa fa-key small', 'placeholder' => true);
 			// password hash : show message at listing
 			} elseif ( F::is('*.index,*.row') ) {
 				return array('format' => 'output', 'value' => '<span class="text-muted">[PASSWORD HASHED]</span>');
 			// password hash : show as empty field when edit
 			} else {
-				return array('placeholder' => F::is('*.edit') ? 'New Password' : true, 'value' => '');
+				return array('icon' => 'fa fa-key small', 'placeholder' => F::is('*.edit') ? 'New Password' : true, 'value' => '');
 			}
 		}),
 		'fullname' => array('label' => 'Full Name', 'placeholder' => 'Full Name'),
-		'email' => array('placeholder' => true),
-		'tel' => array('placeholder' => true)
+		'email' => array('icon' => 'fa fa-envelope small', 'placeholder' => true),
+		'tel' => array('icon' => 'fa fa-phone small', 'placeholder' => true)
 	),
 	'writeLog' => true,
 );
