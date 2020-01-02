@@ -21,10 +21,14 @@ if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::activeUser('role
 }
 
 
-// perform password hashing and save (when neccessary)
-if ( F::is('*.save') and isset($arguments['data']['password']) ) {
-	$arguments['data']['password'] = Auth::hashPassword($arguments['data']['password']);
+// avoid update with empty password
+if ( isset($arguments['data']['password']) and empty($arguments['data']['password']) ) {
+	unset($arguments['data']['password']);
 }
+// perform password hashing before save (when neccessary)
+if ( F::is('*.save') and !empty($arguments['data']['password']) ) {
+	$arguments['data']['password'] = Auth::hashPassword($arguments['data']['password']);
+} 
 
 
 // config
@@ -38,23 +42,29 @@ $scaffold = array(
 	'listField' => array(
 		'id' => '5%',
 		'role|fullname' => '20%',
-		call_user_func(function(){
-			if ( !Auth::$hashPassword or F::is('*.new,*.quick_new') ) {
-				return 'username|password';
-			} else {
-				return 'username';
-			}
-		}) => '20%',
-		'email|tel' => ''
+		'username|password' => '25%',
+		'email|tel' => '25%',
 	),
 	'fieldConfig' => array(
+		'--' => array('format' => 'output', 'value' => '<hr class="my-2 mx-0" />'),
 		'id' => array(),
-		'username' => array('placeholder' => 'Username'),
-		'password' => array('placeholder' => 'Password'),
 		'role' => array('default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
+		'username' => array('placeholder' => true),
+		'password' => call_user_func(function(){
+			// no hash : simply show and edit password as normal field
+			if ( !Auth::$hashPassword ) {
+				return array('placeholder' => true);
+			// password hash : show message at listing
+			} elseif ( F::is('*.index,*.row') ) {
+				return array('format' => 'output', 'value' => '<span class="text-muted">[PASSWORD HASHED]</span>');
+			// password hash : show as empty field when edit
+			} else {
+				return array('placeholder' => F::is('*.edit') ? 'New Password' : true, 'value' => '');
+			}
+		}),
 		'fullname' => array('label' => 'Full Name', 'placeholder' => 'Full Name'),
-		'email' => array('placeholder' => 'Email'),
-		'tel' => array('placeholder' => 'Tel')
+		'email' => array('placeholder' => true),
+		'tel' => array('placeholder' => true)
 	),
 	'writeLog' => true,
 );
