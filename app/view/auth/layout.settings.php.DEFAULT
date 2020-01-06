@@ -1,0 +1,22 @@
+<?php /*
+<fusedoc>
+	<io>
+		<in />
+		<out>
+			<structure name="$layout">
+				<string name="metaTitle" comments="showing at browser tab" />
+			</structure>
+			<structure name="$authLayout">
+				<string name="logo" optional="yes" />
+				<string name="title" optional="yes" />
+				<string name="brand" optional="yes" />
+			</structure>
+		</out>
+	</io>
+</fusedoc>
+*/
+
+$layout['metaTitle'] = '';
+$authLayout['logo']  = '';
+$authLayout['brand'] = '';
+$authLayout['title'] = '';

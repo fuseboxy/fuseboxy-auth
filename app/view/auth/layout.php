@@ -6,14 +6,12 @@
 		</in>
 		<out>
 			<structure name="$layout">
-				<string name="metaTitle" comments="showing at browser tab" />
 				<string name="content" />
 			</structure>
 			<structure name="$authLayout">
 				<string name="flash" comments="success or failure message" />
-				<string name="logo" optional="yes" />
-				<string name="title" optional="yes" />
-				<string name="brand" optional="yes" />
+				<string name="brand" optional="yes" default="Sign In" />
+				<string name="title" optional="yes" default="Admin Console" />
 			</structure>
 		</out>
 	</io>
@@ -22,11 +20,10 @@
 $isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
 
 
-// settings
-$layout['metaTitle'] = 'Admin Console';
-$authLayout['logo']  = '';
-$authLayout['brand'] = 'Sign In';
-$authLayout['title'] = 'Admin Console';
+// title
+if ( file_exists(__DIR__.'/layout.settings.php') ) include 'layout.settings.php';
+if ( empty($authLayout['brand']) ) $authLayout['brand'] = 'Sign In';
+if ( empty($authLayout['title']) ) $authLayout['title'] = 'Admin Console';
 
 
 // flash
