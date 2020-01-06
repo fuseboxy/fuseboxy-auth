@@ -10,8 +10,6 @@
 			</structure>
 			<structure name="$authLayout">
 				<string name="flash" comments="success or failure message" />
-				<string name="brand" optional="yes" default="Sign In" />
-				<string name="title" optional="yes" default="Admin Console" />
 			</structure>
 		</out>
 	</io>
@@ -22,8 +20,6 @@ $isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
 
 // title
 if ( file_exists(__DIR__.'/layout.settings.php') ) include 'layout.settings.php';
-if ( empty($authLayout['brand']) ) $authLayout['brand'] = 'Sign In';
-if ( empty($authLayout['title']) ) $authLayout['title'] = 'Admin Console';
 
 
 // flash

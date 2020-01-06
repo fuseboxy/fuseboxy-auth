@@ -15,8 +15,7 @@
 	</io>
 </fusedoc>
 */
-
 $layout['metaTitle'] = '';
 $authLayout['logo']  = '';
-$authLayout['brand'] = '';
-$authLayout['title'] = '';
+$authLayout['brand'] = 'Sign In';
+$authLayout['title'] = 'Admin Console';
