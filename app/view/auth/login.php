@@ -48,14 +48,8 @@
 		</div>
 	</form>
 	<?php if ( isset($xfa['forgot']) ) : ?>
-		<div class="border-top px-2 pt-3">
-			<a 
-				href="<?php echo F::url($xfa['forgot']); ?>" 
-				data-toggle="ajax-load" 
-				data-target="#auth-login" 
-				data-toggle-loading="none"
-				class="small font-italic"
-			>Forgot password?</a>
+		<div class="border-top px-2 pt-3 small font-italic">
+			<a href="<?php echo F::url($xfa['forgot']); ?>">Forgot password?</a>
 		</div>
 	<?php endif; ?>
 </div>

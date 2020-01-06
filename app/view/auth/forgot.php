@@ -37,17 +37,8 @@
 		</div>
 	</form>
 	<?php if ( isset($xfa['login']) ) : ?>
-		<div class="border-top px-2 pt-3">
-			<a 
-				href="<?php echo F::url($xfa['login']); ?>"
-				class="small font-italic"
-				<?php if ( empty($layout['captcha']) ) : ?>
-					data-toggle="ajax-load"
-					data-target="#auth-forgot"
-					data-toggle-transition="fade"
-					data-toggle-loading="none"
-				<?php endif; ?>
-			>Yes, I have username and password.</a>
+		<div class="border-top px-2 pt-3 small font-italic">
+			<a href="<?php echo F::url($xfa['login']); ?>">Yes, I have username and password.</a>
 		</div>
 	<?php endif; ?>
 </div>
