@@ -30,6 +30,6 @@
 					<?php echo $item['username']; ?>
 				</a>
 			</li>
-		<?php endif; ?>
+		<?php endforeach; ?>
 	</ul>
 </div>
