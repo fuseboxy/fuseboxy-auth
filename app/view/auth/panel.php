@@ -18,7 +18,7 @@
 */ ?>
 <div id="auth-panel" class="container" style="margin-top: 50vh; transform: translateY(-60%);">
 	<div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-5 offset-lg-3">
-		<div class="card panel-default">
+		<div class="card">
 			<a href="<?php echo F::url($fusebox->controller); ?>" class="card-header btn"><?php
 				// logo
 				if ( !empty($authLayout['logo']) ) :
