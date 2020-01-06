@@ -8,8 +8,8 @@
 			<structure name="$authLayout">
 				<string name="flash" />
 				<string name="logo" optional="yes" />
-				<string name="title" optional="yes" />
 				<string name="brand" optional="yes" />
+				<string name="title" optional="yes" />
 			</structure>
 		</in>
 		<out />
@@ -24,13 +24,13 @@
 		endif;
 		?><div class="card">
 			<a href="<?php echo F::url($fusebox->controller); ?>" class="card-header btn"><?php
-				// title
-				if ( !empty($authLayout['title']) ) :
-					?><h3><?php echo $authLayout['title']; ?></h3><?php
-				endif;
 				// brand
 				if ( !empty($authLayout['brand']) ) :
-					?><h5 class="text-muted"><?php echo $authLayout['brand']; ?></h5><?php
+					?><h3><?php echo $authLayout['brand']; ?></h3><?php
+				endif;
+				// title
+				if ( !empty($authLayout['title']) ) :
+					?><h5 class="text-muted"><?php echo $authLayout['title']; ?></h5><?php
 				endif;
 			?></a>
 			<div class="card-body"><?php

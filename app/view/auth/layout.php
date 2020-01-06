@@ -25,8 +25,8 @@ $isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
 // settings
 $layout['metaTitle'] = 'Admin Console';
 $authLayout['logo']  = '';
-$authLayout['title'] = 'Sign In';
-$authLayout['brand'] = 'Admin Console';
+$authLayout['brand'] = 'Sign In';
+$authLayout['title'] = 'Admin Console';
 
 
 // flash
