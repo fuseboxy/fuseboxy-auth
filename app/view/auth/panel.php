@@ -16,14 +16,14 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="auth-panel" class="container" style="margin-top: 50vh; transform: translateY(-60%);">
-	<div class="col-12 col-sm-10 col-md-8 col-lg-6 offset-sm-1 offset-md-2 offset-lg-3">
-		<div class="card">
+<div id="auth-panel" class="container" style="margin-top: 45vh; transform: translateY(-60%);">
+	<div class="col-12 col-sm-10 col-md-8 col-lg-6 offset-sm-1 offset-md-2 offset-lg-3"><?php
+		// logo
+		if ( !empty($authLayout['logo']) ) :
+			?><div class="logo"><img src="<?php echo $authLayout['logo']; ?>" class="d-block mx-auto mb-4" /></div><?php
+		endif;
+		?><div class="card">
 			<a href="<?php echo F::url($fusebox->controller); ?>" class="card-header btn"><?php
-				// logo
-				if ( !empty($authLayout['logo']) ) :
-					?><img src="<?php echo $authLayout['logo']; ?>" class="float-left my-2" /><?php
-				endif;
 				// title
 				if ( !empty($authLayout['title']) ) :
 					?><h3><?php echo $authLayout['title']; ?></h3><?php
