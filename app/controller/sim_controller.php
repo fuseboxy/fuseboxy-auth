@@ -8,16 +8,32 @@ switch ( $fusebox->action ) :
 
 
 	case 'index':
-		// get all (non-super) users
-		$users = R::find('user', "id != ? AND role != 'SUPER' AND IFNULL(disabled, 0) = 0 ORDER BY role, username", array(Auth::user('id')));
+	case 'dropdown':
+		// get all users (non-super)
+		$filter = "id != ? AND role != 'SUPER' AND IFNULL(disabled, 0) = 0 ORDER BY role, username";
+		$param =  array( Auth::user('id') );
+		$data = R::find('user', $filter, $param);
+		// group users by role
+		$users = array();
+		foreach ( $data as $id => $item ) {
+			if ( !isset($users[$item->role]) ) $users[$item->role] = array();
+			$users[$item->role][$id] = $item;
+		}
 		// exit point
-		$xfa['start'] = 'sim.start';
+		if ( !empty($users) ) $xfa['start'] = "{$fusebox->controller}.start";
+		if ( Sim::user() ) $xfa['end'] = "{$fusebox->controller}.end";
 		// display
 		ob_start();
-		include F::config('appPath').'view/sim/index.php';
+		if ( F::is('*.dropdown') ) {
+			include F::config('appPath').'view/sim/dropdown.php';
+		} else {
+			include F::config('appPath').'view/sim/index.php';
+		}
 		$layout['content'] = ob_get_clean();
 		// layout
-		if ( F::ajaxRequest() ) {
+		if ( F::is('*.dropdown') and F::ajaxRequest() ) {
+			echo $layout['content'];
+		} elseif ( F::ajaxRequest() ) {
 			$layout['modalTitle'] = 'User Simulation';
 			include F::config('appPath').'view/global/modal.php';
 		} else {
