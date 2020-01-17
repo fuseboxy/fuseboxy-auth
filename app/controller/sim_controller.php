@@ -31,11 +31,8 @@ switch ( $fusebox->action ) :
 		}
 		$layout['content'] = ob_get_clean();
 		// layout
-		if ( F::is('*.dropdown') and F::ajaxRequest() ) {
+		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
-		} elseif ( F::ajaxRequest() ) {
-			$layout['modalTitle'] = 'User Simulation';
-			include F::config('appPath').'view/global/modal.php';
 		} else {
 			$arguments['breadcrumb'] = array('User Simulation');
 			include F::config('appPath').'view/global/layout.php';
