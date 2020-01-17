@@ -46,7 +46,7 @@ $scaffold = array(
 		'email|tel' => '25%',
 	),
 	'fieldConfig' => array(
-		'id' => array(),
+		'id',
 		'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
 		'username' => array('icon' => 'fa fa-user small', 'placeholder' => true),
 		'password' => call_user_func(function(){
