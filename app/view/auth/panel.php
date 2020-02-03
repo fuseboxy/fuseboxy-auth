@@ -16,7 +16,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="auth-panel" class="container" style="margin-top: 45vh; transform: translateY(-60%);">
+<div id="auth-panel" class="container" style="margin-top: 40vh; transform: translateY(-40%);">
 	<div class="col-12 col-sm-10 col-md-8 col-lg-6 offset-sm-1 offset-md-2 offset-lg-3"><?php
 		// logo
 		if ( !empty($authLayout['logo']) ) :
