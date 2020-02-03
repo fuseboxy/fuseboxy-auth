@@ -1,6 +1,6 @@
 <?php
 F::redirect('auth', !Auth::user());
-F::error('Disallowed', !Auth::userInRole('SUPER,ADMIN'));
+F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
 // run!
