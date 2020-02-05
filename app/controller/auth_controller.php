@@ -100,7 +100,7 @@ switch ( $fusebox->action ) :
 	case 'login':
 		F::error('No data were submitted', empty($arguments['data']));
 		// proceed to login
-		$loginResult = Auth::login($arguments['data']);
+		$authResult = Auth::login($arguments['data']);
 		// write log
 		if ( isset($arguments['data']['email']) ) {
 			$uid = $arguments['data']['email'];
@@ -110,7 +110,7 @@ switch ( $fusebox->action ) :
 			$uid = '';
 		}
 		if ( method_exists('Log', 'write') ) {
-			if ( $loginResult === false ) {
+			if ( $authResult === false ) {
 				$remark  = 'FAILED'.PHP_EOL;
 				$remark .= '[username] '.$uid.PHP_EOL;
 				$remark .= '[ip] '.$_SERVER['REMOTE_ADDR'].PHP_EOL;
@@ -123,7 +123,7 @@ switch ( $fusebox->action ) :
 			F::error(Log::error(), $logResult === false);
 		}
 		// failure : show message
-		if ( $loginResult === false ) {
+		if ( $authResult === false ) {
 			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 			F::redirect('auth.form');
 		}
