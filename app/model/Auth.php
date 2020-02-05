@@ -31,7 +31,7 @@ class Auth {
 	// ===> return sim user info when simulating
 	// ===> otherwise, return logged in user
 	public static function activeUser($key=null) {
-		return Sim::user() ? Sim::user($key) : self::user($key);
+		return ( class_exists('Sim') and Sim::user() ) ? Sim::user($key) : self::user($key);
 	}
 
 
@@ -39,7 +39,7 @@ class Auth {
 
 	// check whether active (sim > actual) user is specific group-role(s)
 	public static function activeUserIn($permissions=array()) {
-		return Sim::user() ? Sim::userIn($permissions) : self::userIn($permissions);
+		return ( class_exists('Sim') and Sim::user() ) ? Sim::userIn($permissions) : self::userIn($permissions);
 	}
 
 
@@ -47,7 +47,7 @@ class Auth {
 
 	// check whether active (sim > actual) user is specific group(s)
 	public static function activeUserInGroup($groups=array()) {
-		return Sim::user() ? Sim::userInGroup($groups) : self::userInGroup($groups);
+		return ( class_exists('Sim') and Sim::user() ) ? Sim::userInGroup($groups) : self::userInGroup($groups);
 	}
 
 
@@ -55,7 +55,7 @@ class Auth {
 
 	// check whether active (sim > actual) user is specific role(s)
 	public static function activeUserInRole($roles=array()) {
-		return Sim::user() ? Sim::userInRole($roles) : self::userInRole($roles);
+		return ( class_exists('Sim') and Sim::user() ) ? Sim::userInRole($roles) : self::userInRole($roles);
 	}
 
 
@@ -246,9 +246,9 @@ class Auth {
 
 	// sign out user
 	public static function logout() {
-		$endSim = Sim::end();
-		if ( $endSim === false ) {
-			return false;
+		if ( class_exists('Sim') ) {
+			$endSim = Sim::end();
+			if ( $endSim === false ) return false;
 		}
 		if ( isset($_SESSION['auth_user']) ) {
 			unset($_SESSION['auth_user']);
