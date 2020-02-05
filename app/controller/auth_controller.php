@@ -110,9 +110,15 @@ switch ( $fusebox->action ) :
 			$uid = '';
 		}
 		if ( method_exists('Log', 'write') ) {
+			if ( $loginResult === false ) {
+				$remark  = 'FAILED'.PHP_EOL;
+				$remark .= '[username] '.$uid.PHP_EOL;
+				$remark .= '[ip] '.$_SERVER['REMOTE_ADDR'].PHP_EOL;
+				$remark .= '[error] '.Auth::error();
+			}
 			$logResult = Log::write(array(
 				'action' => 'LOGIN',
-				'remark' => ( $loginResult === false ) ? "FAILED\n[username] {$uid}\n[ip] {$_SERVER['REMOTE_ADDR']}" : null,
+				'remark' => !empty($remark) ? $remark : null,
 			));
 			F::error(Log::error(), $logResult === false);
 		}
