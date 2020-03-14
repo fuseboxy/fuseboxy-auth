@@ -25,9 +25,9 @@ switch ( $fusebox->action ) :
 		// display
 		ob_start();
 		if ( F::is('*.dropdown') ) {
-			include F::config('appPath').'view/sim/dropdown.php';
+			include F::appPath('view/sim/dropdown.php');
 		} else {
-			include F::config('appPath').'view/sim/index.php';
+			include F::appPath('view/sim/index.php');
 		}
 		$layout['content'] = ob_get_clean();
 		// layout
@@ -35,7 +35,7 @@ switch ( $fusebox->action ) :
 			echo $layout['content'];
 		} else {
 			$arguments['breadcrumb'] = array('User Simulation');
-			include F::config('appPath').'view/global/layout.php';
+			include F::appPath('view/global/layout.php');
 		}
 		break;
 

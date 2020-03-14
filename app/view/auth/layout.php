@@ -18,21 +18,31 @@
 $isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
 
 
-// title
-if ( file_exists(__DIR__.'/layout.settings.php') ) include 'layout.settings.php';
+// login form title
+$customSettings  = F::appPath('view/auth/layout.settings.php');
+$defaultSettings = F::appPath('view/auth/layout.settings.php.DEFAULT');
+include is_file($customSettings) ? $customSettings : $defaultSettings;
 
 
 // flash
 ob_start();
-include F::config('appPath') . ( $isUnitTest ? '../test/utility-auth/view/flash.php' : 'view/global/layout.flash.php' );
+if ( $isUnitTest ) {
+	include dirname(dirname(dirname(__DIR__))).'/test/utility-auth/view/flash.php';
+} else {
+	include F::appPath('view/global/layout.flash.php');
+}
 $authLayout['flash'] = trim( ob_get_clean() );
 
 
 // display
 ob_start();
-include F::config('appPath').'view/auth/panel.php';
+include F::appPath('view/auth/panel.php');
 $layout['content'] = trim( ob_get_clean() );
 
 
 // layout
-include F::config('appPath') . ( $isUnitTest ? '../test/utility-auth/view/layout.php' : 'view/global/layout.basic.php' );
+if ( $isUnitTest ) {
+	include dirname(dirname(dirname(__DIR__))).'/test/utility-auth/view/layout.php';
+} else {
+	include F::appPath('view/global/layout.basic.php');
+}

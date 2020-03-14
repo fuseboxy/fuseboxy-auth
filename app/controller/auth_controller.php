@@ -12,13 +12,13 @@ switch ( $fusebox->action ) :
 		$xfa['local'] = 'auth.form';
 		// display
 		ob_start();
-		include F::config('appPath').'view/auth/index.php';
+		include F::appPath('view/auth/index.php');
 		$layout['content'] = ob_get_clean();
 		// layout (when necessary)
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			include F::config('appPath').'view/auth/layout.php';
+			include F::appPath('view/auth/layout.php');
 		}
 		break;
 
@@ -40,13 +40,13 @@ switch ( $fusebox->action ) :
 		}
 		// display
 		ob_start();
-		include F::config('appPath').'view/auth/login.php';
+		include F::appPath('view/auth/login.php');
 		$layout['content'] = ob_get_clean();
 		// layout (when necessary)
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			include F::config('appPath').'view/auth/layout.php';
+			include F::appPath('view/auth/layout.php');
 		}
 		break;
 
@@ -64,13 +64,13 @@ switch ( $fusebox->action ) :
 		}
 		// display
 		ob_start();
-		include F::config('appPath').'view/auth/forgot.php';
+		include F::appPath('view/auth/forgot.php');
 		$layout['content'] = ob_get_clean();
 		// layout (when necessary)
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			include F::config('appPath').'view/auth/layout.php';
+			include F::appPath('view/auth/layout.php');
 		}
 		break;
 

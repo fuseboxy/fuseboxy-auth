@@ -13,12 +13,12 @@ switch ( $fusebox->action ) :
 		$xfa['submit'] = "{$fusebox->controller}.update_profile";
 		// display
 		ob_start();
-		include F::config('appPath').'view/account/profile.php';
+		include F::appPath('view/account/profile.php');
 		$layout['content'] = ob_get_clean();
 		// breadcrumb
 		$arguments['breadcrumb'] = array('My Account', 'Update Profile');
 		// layout
-		include F::config('appPath').'view/account/layout.php';
+		include F::appPath('view/account/layout.php');
 		break;
 
 
@@ -27,12 +27,12 @@ switch ( $fusebox->action ) :
 		$xfa['submit'] = "{$fusebox->controller}.update_password";
 		// display
 		ob_start();
-		include F::config('appPath').'view/account/password.php';
+		include F::appPath('view/account/password.php');
 		$layout['content'] = ob_get_clean();
 		// breadcrumb
 		$arguments['breadcrumb'] = array('My Account', 'Change Password');
 		// layout
-		include F::config('appPath').'view/account/layout.php';
+		include F::appPath('view/account/layout.php');
 		break;
 
 

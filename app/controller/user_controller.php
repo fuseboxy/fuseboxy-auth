@@ -36,7 +36,7 @@ $scaffold = array(
 	'beanType' => 'user',
 	'editMode' => 'inline',
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
-	'layoutPath' => F::config('appPath').'view/user/layout.php',
+	'layoutPath' => F::appPath('view/user/layout.php'),
 	'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
 	'listOrder' => 'ORDER BY username',
 	'listField' => array(
@@ -70,4 +70,4 @@ $scaffold = array(
 
 
 // run!
-include F::config('appPath').'controller/scaffold_controller.php';
+include F::appPath('controller/scaffold_controller.php');
