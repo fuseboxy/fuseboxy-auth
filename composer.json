@@ -1,0 +1,6 @@
+{
+	"name": "fuseboxy/fuseboxy-auth",
+	"description": "Fuseboxy Auth - Login Form, User Management, User Simulation, etc.",
+	"license": "MIT",
+	"require": {}
+}
