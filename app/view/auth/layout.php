@@ -44,5 +44,5 @@ $layout['content'] = trim( ob_get_clean() );
 if ( $isUnitTest ) {
 	include dirname(dirname(dirname(__DIR__))).'/test/utility-auth/view/layout.php';
 } else {
-	include F::appPath('view/global/layout.basic.php');
+	include F::appPath('view/global/layout.html.php');
 }
