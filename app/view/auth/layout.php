@@ -20,7 +20,7 @@ $isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
 
 // login form title
 $customSettings  = F::appPath('view/auth/layout.settings.php');
-$defaultSettings = F::appPath('view/auth/layout.settings.php.DEFAULT');
+$defaultSettings = F::appPath('view/auth/layout.settings.php-default');
 include is_file($customSettings) ? $customSettings : $defaultSettings;
 
 
