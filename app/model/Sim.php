@@ -15,20 +15,15 @@ class Sim {
 
 
 	// start user sim
-	public static function start($user_id=null) {
-		// validation
-		if ( empty($user_id) ) {
-			self::$error = 'Sim::start() - argument [user_id] is required';
-			return false;
-		}
+	public static function start($user_id) {
 		// get user info (treat argument as username if not numeric)
 		if ( is_numeric($user_id) ) {
-			$bean = R::load('user', $user_id);
+			$bean = ORM::get('user', $user_id);
 		} else {
-			$bean = R::findOne('user', 'username = ? ', array($user_id));
+			$bean = ORM::first('user', 'username = ? ', array($user_id));
 		}
-		if ( !$bean->id ) {
-			self::$error = "Sim::start() - user [id={$user_id}] not found";
+		if ( $bean === false ) {
+			self::$error = ORM::error();
 			return false;
 		}
 		// start simulation
