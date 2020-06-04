@@ -128,23 +128,24 @@ class Auth {
 	*/
 	public static function initUser(&$user=null) {
 		// validation
-		if ( R::count('user') != 0 ) {
+		if ( ORM::count('user') != 0 ) {
 			self::$error = 'User accounts already exist';
 			return false;
 		}
-		// define default password
-		$defaultPassword = '123456789';
 		// create default user
-		$bean = R::dispense('user');
-		$bean->import(array(
-			'role' => 'SUPER',
+		$bean = ORM::new('user', array(
+			'role'     => 'SUPER',
 			'username' => 'developer',
-			'password' => self::hashPassword($defaultPassword),
+			'password' => self::hashPassword('123456789'),
 			'disabled' => 0,
 		));
-		$id = R::store($bean);
-		// check result
-		if ( empty($id) ) {
+		if ( $bean === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// save default user
+		$id = ORM::save($bean);
+		if ( $id === false ) {
 			self::$error = 'Error occurred while creating first user account';
 			return false;
 		}
@@ -202,9 +203,9 @@ class Auth {
 			return false;
 		}
 		// get user record
-		$user = R::findOne('user', 'username = ? ', array($data['username']));
+		$user = ORM::first('user', 'username = ? ', array($data['username']));
 		if ( empty($user->id) ) {
-			$user = R::findOne('user', 'email = ? ', array($data['username']));
+			$user = ORM::first('user', 'email = ? ', array($data['username']));
 		}
 		// check user existence
 		if ( empty($user->id) ) {
@@ -268,8 +269,15 @@ class Auth {
 
 	// refresh session (usually use after profile update)
 	public static function refresh() {
-		$user = R::load('user', self::user('id'));
+		// get latest data
+		$user = ORM::get('user', self::user('id'));
+		if ( $user === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// persist data
 		$_SESSION['auth_user'] = $user->export();
+		// done!
 		return true;
 	}
 
@@ -310,7 +318,7 @@ class Auth {
 			return false;
 		}
 		// check email existence
-		$user = R::findOne('user', 'email = ?', array($email));
+		$user = ORM::first('user', 'email = ?', array($email));
 		if ( empty($user->id) ) {
 			self::$error = "No user account is associated with <strong>{$email}</strong>";
 			return false;
@@ -334,7 +342,11 @@ class Auth {
 		}
 		// save random password
 		$user->password = self::hashPassword($random);
-		R::store($user);
+		$saveResult = ORM::save($user);
+		if ( $saveResult === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
 		// done!
 		return true;
 	}
@@ -495,7 +507,7 @@ class Auth {
 	</fusedoc>
 	*/
 	private static function __autoLoginByCookie() {
-		$user = R::findOne('user', 'username = ? ', array($_COOKIE[self::__cookieKey()]));
+		$user = ORM::first('user', 'username = ? ', array($_COOKIE[self::__cookieKey()]));
 		if ( empty($user->id) ) {
 			self::$error = 'Auto-login failure';
 			return false;
