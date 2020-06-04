@@ -8,7 +8,8 @@ switch ( $fusebox->action ) :
 
 	case 'profile':
 		// get record
-		$user = R::load('user', Auth::user('id'));
+		$user = ORM::get('user', Auth::user('id'));
+		F::error(ORM::error(), $user === false);
 		// exit point
 		$xfa['submit'] = "{$fusebox->controller}.update_profile";
 		// display
@@ -40,12 +41,13 @@ switch ( $fusebox->action ) :
 		F::error('No data were submitted', empty($arguments['data']));
 		// update record
 		// ===> remember {beforeSave|afterSave} for log
-		$bean = R::load('user', Auth::user('id'));
+		$bean = ORM::get('user', Auth::user('id'));
+		F::error(ORM::error(), $bean === false);
 		$beforeSave = $bean->export();
 		$bean->import($arguments['data']);
 		$afterSave = $bean->export();
-		$saveResult = R::store($bean);
-		F::error('Error occurred while updating profile', empty($saveResult));
+		$saveResult = ORM::save($bean);
+		F::error(ORM::error(), $saveResult === false);
 		// refresh session
 		$refreshResult = Auth::refresh();
 		F::error(Auth::error(), $refreshResult === false);
@@ -77,10 +79,11 @@ switch ( $fusebox->action ) :
 			F::redirect("{$fusebox->controller}.password");
 		}
 		// update record
-		$bean = R::load('user', Auth::user('id'));
+		$bean = ORM::get('user', Auth::user('id'));
+		F::error(ORM::error(), $bean === false);
 		$bean->password = Auth::hashPassword($arguments['new_password']);
-		$saveResult = R::store($bean);
-		F::error('Error occurred while changing password', empty($saveResult));
+		$saveResult = ORM::save($bean);
+		F::error(ORM::error(), $saveResult === false);
 		// refresh session
 		$refreshResult = Auth::refresh();
 		F::error(Auth::error(), $refreshResult === false);

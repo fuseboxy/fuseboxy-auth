@@ -27,7 +27,7 @@ switch ( $fusebox->action ) :
 		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// create default account (when necessary)
-		F::redirect('auth.init', R::count('user') == 0);
+		F::redirect('auth.init', ORM::count('user') == 0);
 		// exit point
 		$xfa['submit'] = 'auth.login';
 		if ( class_exists('Util') ) {

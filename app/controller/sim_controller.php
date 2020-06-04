@@ -12,7 +12,7 @@ switch ( $fusebox->action ) :
 		// get all users (non-super)
 		$filter = "id != ? AND role != 'SUPER' AND IFNULL(disabled, 0) = 0 ORDER BY role, username";
 		$param =  array( Auth::user('id') );
-		$data = R::find('user', $filter, $param);
+		$data = ORM::get('user', $filter, $param);
 		// group users by role
 		$users = array();
 		foreach ( $data as $id => $item ) {
