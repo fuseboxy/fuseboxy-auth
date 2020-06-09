@@ -40,7 +40,7 @@ $scaffold = array(
 	'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
 	'listOrder' => 'ORDER BY username',
 	'listField' => array(
-		'id' => '5%',
+		'id' => '60',
 		'role|fullname' => '20%',
 		'username|password' => '25%',
 		'email|tel' => '25%',
