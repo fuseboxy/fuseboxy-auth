@@ -2,13 +2,9 @@
 class Auth {
 
 
-
-
 	// configurable settings
 	public static $hashPassword = true;
 	public static $resetPasswordFrom = 'noreply@example.com';
-
-
 
 
 	// define constant
@@ -177,7 +173,6 @@ class Auth {
 				<number name="$mode" optional="yes" default="~NORMAL_PASSWORD_CHECK~" />
 			</in>
 			<out>
-				<string name="~self::__cookieKey()~" scope="$_COOKIE" />
 				<boolean name="~return~" />
 			</out>
 		</io>
@@ -230,14 +225,6 @@ class Auth {
 		// persist user info when succeed
 		// ===> php does not allow storing bean (object) in session
 		$_SESSION['auth_user'] = $user->export();
-		// perform auto-login for {remember} days when session expired
-		if ( isset($data['remember']) ) {
-			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-				$_COOKIE[self::__cookieKey()] = $user->username;
-			} else {
-				setcookie(self::__cookieKey(), $user->username, time()+intval($data['remember'])*24*60*60);
-			}
-		}
 		// done!
 		return true;
 	}
@@ -253,13 +240,6 @@ class Auth {
 		}
 		if ( isset($_SESSION['auth_user']) ) {
 			unset($_SESSION['auth_user']);
-		}
-		if ( isset($_COOKIE[self::__cookieKey()]) ) {
-			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-				unset($_COOKIE[self::__cookieKey()]);
-			} else {
-				setcookie(self::__cookieKey(), '', -1);
-			}
 		}
 		return true;
 	}
@@ -363,7 +343,6 @@ class Auth {
 		</description>
 		<io>
 			<in>
-				<string name="~cookieKey~" scope="$_COOKIE" optional="yes" comments="for auto-login" />
 				<structure name="auth_user" scope="$_SESSION" optional="yes">
 					<string name="~field~" />
 				</structure>
@@ -378,11 +357,6 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function user($key=null) {
-		// auto-login (when remember login)
-		if ( !isset($_SESSION['auth_user']) and isset($_COOKIE[self::__cookieKey()]) ) {
-			$autoLoginResult = self::__autoLoginByCookie();
-			if ( $autoLoginResult === false ) return false;
-		}
 		// return request info
 		if ( empty($_SESSION['auth_user']) ) {
 			return false;
@@ -487,55 +461,6 @@ class Auth {
 		foreach ( $roles as $i => $val ) $roles[$i] = "*.{$val}";
 		return self::userIn($roles, $user);
 	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			PRIVATE : auto-login user (when necessary)
-		</description>
-		<io>
-			<in>
-				<string name="~self::__cookieKey()~" scope="cookie" comments="username" />
-			</in>
-			<out>
-				<boolean name="~return~" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	private static function __autoLoginByCookie() {
-		$user = ORM::first('user', 'username = ? ', array($_COOKIE[self::__cookieKey()]));
-		if ( empty($user->id) ) {
-			self::$error = 'Auto-login failure';
-			return false;
-		}
-		return self::login(array(
-			'username' => $user->username,
-			'password' => $user->password,
-		), self::HASHED_PASSWORD_CHECK);
-	}
-
-
-
-
-	// PRIVATE : cookie key
-	// ===> cannot use session_name() to define property
-	// ===> use function instead
-	private static function __cookieKey() {
-		return 'auth_user_'.session_name();
-	}
-	public static function cookieKey() {
-		if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
-			throw new Exception("Method Auth::cookieKey() is for unit test only");
-			return false;
-		}		
-		return self::__cookieKey();
-	}
-
-
 
 
 } // class

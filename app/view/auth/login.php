@@ -14,7 +14,6 @@
 			<structure name="data" scope="form" oncondition="xfa.submit">
 				<string name="username" />
 				<string name="password" />
-				<number name="remember" />
 			</structure>
 		</out>
 	</io>
@@ -33,10 +32,6 @@
 				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
 				<input class="form-control" type="password" name="data[password]" placeholder="Password" required />
 			</div>
-		</div>
-		<div class="form-check small ml-1 mt-n2">
-			<input id="auth-login-remember" name="data[remember]" class="form-check-input" type="checkbox" value="30" />
-			<label class="form-check-label text-muted" for="auth-login-remember">Remember me</label>
 		</div>
 		<?php if ( !empty($layout['captcha']) ) : ?>
 			<div class="form-group text-center pt-4 mb-n2">
