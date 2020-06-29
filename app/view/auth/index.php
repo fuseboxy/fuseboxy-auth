@@ -13,9 +13,9 @@
 */ ?>
 <div id="auth-index" class="px-2 pt-2 pb-0">
 	<div class="form-group">
-		<a href="<?php echo F::url($xfa['cas']); ?>" class="btn w-100 py-3 btn-primary">CAS Login</a>
+		<a href="<?php echo F::url($xfa['cas']); ?>" class="btn btn-lg btn-block py-3 font-weight-light btn-primary">CAS Login</a>
 	</div>
 	<div class="form-group">
-		<a href="<?php echo F::url($xfa['local']); ?>" class="btn w-100 py-3 btn-outline-primary text-primary bg-white">Local Account Login</a>
+		<a href="<?php echo F::url($xfa['local']); ?>" class="btn btn-lg btn-block py-3 font-weight-light btn-outline-primary text-primary bg-white">Local Account Login</a>
 	</div>
 </div>

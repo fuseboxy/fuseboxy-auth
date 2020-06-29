@@ -1,9 +1,7 @@
 <?php /*
 <fusedoc>
 	<io>
-		<in>
-			<string name="Framework::$mode" comments="check for unit test" />
-		</in>
+		<in />
 		<out>
 			<structure name="$layout">
 				<string name="content" />
@@ -15,34 +13,21 @@
 	</io>
 </fusedoc>
 */
-$isUnitTest = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
-
 
 // login form title
 $customSettings  = F::appPath('view/auth/layout.settings.php');
 $defaultSettings = F::appPath('view/auth/layout.settings.php-default');
 include is_file($customSettings) ? $customSettings : $defaultSettings;
 
-
 // flash
 ob_start();
-if ( $isUnitTest ) {
-	include dirname(dirname(dirname(__DIR__))).'/test/utility-auth/view/flash.php';
-} else {
-	include F::appPath('view/global/layout.flash.php');
-}
+include F::appPath('view/global/layout.flash.php');
 $authLayout['flash'] = trim( ob_get_clean() );
-
 
 // display
 ob_start();
-include F::appPath('view/auth/panel.php');
+include F::appPath('view/auth/form.php');
 $layout['content'] = trim( ob_get_clean() );
 
-
 // layout
-if ( $isUnitTest ) {
-	include dirname(dirname(dirname(__DIR__))).'/test/utility-auth/view/layout.php';
-} else {
-	include F::appPath('view/global/layout.html.php');
-}
+include F::appPath('view/global/layout.html.php');

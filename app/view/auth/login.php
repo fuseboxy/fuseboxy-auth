@@ -2,12 +2,8 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$xfa">
-				<string name="submit" />
-				<string name="forgot" optional="yes" comments="ajax-load" />
-			</structure>
-			<structure name="$layout">
-				<string name="captcha" optional="yes" />
+			<structure name="data" scope="$arguments" optional="yes">
+				<string name="username" />
 			</structure>
 		</in>
 		<out>
@@ -19,32 +15,34 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="auth-login" class="pt-2 pb-1">
-	<form role="form" class="px-2" method="post" action="<?php echo F::url($xfa['submit']); ?>">
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-				<input class="form-control" type="text" name="data[username]" placeholder="Username or email" required autofocus />
-			</div>
+<div id="auth-login" class="pb-1">
+	<div class="form-group">
+		<label><sub class="text-muted font-weight-bold">Username or email</sub></label>
+		<div class="input-group">
+			<div class="input-group-prepend"><span class="input-group-text px-3 bg-light text-dark"><i class="fa fa-fw fa-user"></i></span></div>
+			<input 
+				type="text" 
+				name="data[username]" 
+				class="form-control form-control-lg" 
+				value="<?php if ( isset($arguments['data']['username']) ) echo $arguments['data']['username']; ?>"
+				required 
+				autofocus 
+			/>
 		</div>
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-				<input class="form-control" type="password" name="data[password]" placeholder="Password" required />
-			</div>
+	</div>
+	<div class="form-group">
+		<label><sub class="text-muted font-weight-bold">Password</sub></label>
+		<div class="input-group">
+			<div class="input-group-prepend"><span class="input-group-text px-3 bg-light text-dark"><i class="fa fa-fw fa-lock"></i></span></div>
+			<input 
+				type="password" 
+				name="data[password]" 
+				class="form-control form-control-lg" 
+				required 
+			/>
 		</div>
-		<?php if ( !empty($layout['captcha']) ) : ?>
-			<div class="form-group text-center pt-4 mb-n2">
-				<div><?php echo $layout['captcha']; ?></div>
-			</div>
-		<?php endif; ?>
-		<div class="form-group text-center pt-4">
-			<button type="submit" class="btn btn-primary">Sign in</button>
-		</div>
-	</form>
-	<?php if ( isset($xfa['forgot']) ) : ?>
-		<div class="border-top px-2 pt-3 small font-italic">
-			<a href="<?php echo F::url($xfa['forgot']); ?>">Forgot password?</a>
-		</div>
-	<?php endif; ?>
+	</div>
+	<div class="form-group pt-3">
+		<button type="submit" class="btn btn-lg btn-block btn-primary font-weight-light">Log In</button>
+	</div>
 </div>
