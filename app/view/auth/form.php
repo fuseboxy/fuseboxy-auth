@@ -23,13 +23,11 @@
 </fusedoc>
 */ ?>
 <form id="auth-form" method="post" class="container my-5" action="<?php if ( isset($xfa['submit']) ) echo F::url($xfa['submit']); ?>"><?php
-	// spacing
-	echo str_repeat('<div class="pt-0 pt-lg-4 pt-xl-5"></div>', 3);
 	// form size
-	?><div class="col-12 col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3"><?php
+	?><div class="col-12 col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3 pt-5"><?php
 		// logo
 		if ( !empty($authLayout['logo']) ) :
-			?><img src="<?php echo $authLayout['logo']; ?>" class="logo d-block mx-auto mb-5" /><?php
+			?><h1 class="logo text-center my-5"><img src="<?php echo $authLayout['logo']; ?>" /></h1><?php
 		endif;
 		?><div class="card"><?php
 			// header
