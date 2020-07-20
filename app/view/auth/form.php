@@ -27,7 +27,7 @@
 	?><div class="col-12 col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3 pt-5"><?php
 		// logo
 		if ( !empty($authLayout['logo']) ) :
-			?><h1 class="logo text-center my-5"><img src="<?php echo $authLayout['logo']; ?>" /></h1><?php
+			?><h1 class="logo text-center mb-5"><img src="<?php echo $authLayout['logo']; ?>" /></h1><?php
 		endif;
 		?><div class="card"><?php
 			// header
