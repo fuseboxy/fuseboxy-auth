@@ -57,6 +57,22 @@ class Auth {
 
 
 
+	public static function actualUser($key=null) {
+		return self::user($key);
+	}
+	public static function actualUserIn($permissions=null) {
+		return self::userIn($permissions);
+	}
+	public static function actualUserInGroup($groups=null) {
+		return self::userInGroup($groups);
+	}
+	public static function actualUserInRole($roles=null) {
+		return self::userInRole($roles);
+	}
+
+
+
+
 	/**
 	<fusedoc>
 		<description>
