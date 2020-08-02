@@ -412,7 +412,7 @@ class Auth {
 		</description>
 		<io>
 			<in>
-				<list name="queryPermissions" delim="," example="DEPT_A.ADMIN,DEPT_B.USER">
+				<list name="permissions" delim="," example="DEPT_A.ADMIN,DEPT_B.USER,DEPT_C.*,*.GUEST">
 					<string name="+" comments="~group~.~role~" />
 				</list>
 				<structure name="$user" optional="yes" default="sim > actual">
@@ -425,7 +425,7 @@ class Auth {
 		</io>
 	</fusedoc>
 	*/
-	public static function userIn($queryPermissions='', $user=null) {
+	public static function userIn($permissions='', $user=null) {
 		// get user data
 		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
 			$user = Sim::user();
@@ -433,12 +433,10 @@ class Auth {
 			$user = self::user();
 		}
 		// turn argument into array if it is a comma-delimited list
-		if ( is_string($queryPermissions) ) {
-			$queryPermissions = explode(',', $queryPermissions);
-		}
+		if ( is_string($permissions) ) $permissions = explode(',', $permissions);
 		// cleanse permission-to-check before comparison
 		// ===> permission-to-check can have wildcard (e.g. *.ADMIN, DEPT_A.*)
-		foreach ( $queryPermissions as $i => $groupAndRole ) {
+		foreach ( $permissions as $i => $groupAndRole ) {
 			$groupAndRole = strtoupper($groupAndRole);
 			$groupAndRole = explode('.', $groupAndRole);
 			$groupAndRole = array_filter($groupAndRole);
@@ -448,14 +446,14 @@ class Auth {
 			$role = array_pop($groupAndRole);
 			$group = implode('.', $groupAndRole);
 			if ( empty($group) ) $group = '*';
-			$queryPermissions[$i] = "{$group}.{$role}";
+			$permissions[$i] = "{$group}.{$role}";
 		}
 		// cleanse defined-user-permission and turn it into array
 		// ===> user can be assign to multiple roles (comma-delimited)
 		$actualPermissions = strtoupper($user['role']);
 		$actualPermissions = explode(',', $actualPermissions);
 		// compare permission-to-check against defined-user-permission
-		foreach ( $queryPermissions as $queryGroupAndRole ) {
+		foreach ( $permissions as $queryGroupAndRole ) {
 			$queryGroupAndRole = explode('.', $queryGroupAndRole);
 			$queryRole = array_pop($queryGroupAndRole);
 			$queryGroup = implode('.', $queryGroupAndRole);
@@ -468,9 +466,8 @@ class Auth {
 				// compare...
 				$isRoleMatch = ( $queryRole == $actualRole or $queryRole == '*' );
 				$isGroupMatch = ( $queryGroup == $actualGroup or $queryGroup == '*' );
-				if ( $isRoleMatch and $isGroupMatch ) {
-					return true;
-				}
+				// simply quit when any match
+				if ( $isRoleMatch and $isGroupMatch ) return true;
 			}
 		}
 		// no match...
