@@ -24,6 +24,7 @@ class Auth {
 
 
 	// get info or check permission of current user (sim > actual)
+	// ===> more or less same as default behaviour of userXXX methods
 	// ===> keep for backward compatibility
 	public static function activeUser($key='')           { return self::user($key); }
 	public static function activeUserIn($permissions='') { return self::userIn($permissions); }
