@@ -441,7 +441,7 @@ class Auth {
 		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
 			$user = Sim::user();
 		} elseif ( empty($user) ) {
-			$user = self::user();
+			$user = self::actualUser();
 		}
 		// turn argument into array if it is a comma-delimited list
 		if ( is_string($permissions) ) $permissions = explode(',', $permissions);
@@ -512,7 +512,7 @@ class Auth {
 		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
 			$user = Sim::user();
 		} elseif ( empty($user) ) {
-			$user = self::user();
+			$user = self::actualUser();
 		}
 		// turn into {group.role} convention
 		if ( is_string($groups) ) $groups = explode(',', $groups);
@@ -548,7 +548,7 @@ class Auth {
 		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
 			$user = Sim::user();
 		} elseif ( empty($user) ) {
-			$user = self::user();
+			$user = self::actualUser();
 		}
 		// turn into {group.role} convention
 		if ( is_string($roles) ) $roles = explode(',', $roles);
