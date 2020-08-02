@@ -353,9 +353,7 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
-			get (actual) user information
-			===> auto-login is performed in this method
-			===> because this method is used for login checking
+			get (sim > actual) user information
 		</description>
 		<io>
 			<in>
@@ -372,14 +370,17 @@ class Auth {
 		</io>
 	</fusedoc>
 	*/
-	public static function user($key=null) {
-		// return request info
-		if ( empty($_SESSION['auth_user']) ) {
-			return false;
-		} elseif ( !isset($key) ) {
-			return $_SESSION['auth_user'];
-		} elseif ( isset($_SESSION['auth_user'][$key]) ) {
+	public static function user($key='') {
+		// look for sim user first (then actual user)
+		if ( class_exists('Sim') and Sim::user() ) {
+			return Sim::user($key);
+		// get specific data
+		} elseif ( !empty($key) and isset($_SESSION['auth_user'][$key]) ) {
 			return $_SESSION['auth_user'][$key];
+		// get all data
+		} elseif ( isset($_SESSION['auth_user']) ) {
+			return $_SESSION['auth_user'];
+		// failed...
 		} else {
 			return false;
 		}
