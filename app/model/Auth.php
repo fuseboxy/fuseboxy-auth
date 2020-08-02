@@ -516,11 +516,36 @@ class Auth {
 
 
 
-	// check whether (actual) user is specific role(s) of any group
-	public static function userInRole($roles=array(), $user=null) {
-		if ( empty($user) ) $user = self::user();
+	/**
+	<fusedoc>
+		<description>
+			check whether user is specific role(s) of any group
+			===> user precedence is {args > sim > actual}
+		</description>
+		<io>
+			<in>
+				<list name="$roles" default="" example="ADMIN,USER">
+					<string name="*" />
+				</list>
+				<structure name="$user" optional="yes" default="sim > actual" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function userInRole($roles='', $user=null) {
+		// get user data
+		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
+			$user = Sim::user();
+		} elseif ( empty($user) ) {
+			$user = self::user();
+		}
+		// turn into {group.role} convention
 		if ( is_string($roles) ) $roles = explode(',', $roles);
-		foreach ( $roles as $i => $val ) $roles[$i] = "*.{$val}";
+		foreach ( $roles as $key => $val ) $roles[$key] = '*.'.$val;
+		// reuse method
 		return self::userIn($roles, $user);
 	}
 
