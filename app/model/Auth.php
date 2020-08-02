@@ -412,10 +412,10 @@ class Auth {
 		</description>
 		<io>
 			<in>
-				<list name="queryPermissions" delim=",">
-					<string name="+" comments="~group~.~role~" example="DEPT_A.ADMIN" />
+				<list name="queryPermissions" delim="," example="DEPT_A.ADMIN,DEPT_B.USER">
+					<string name="+" comments="~group~.~role~" />
 				</list>
-				<structure name="$user" optional="yes">
+				<structure name="$user" optional="yes" default="sim > actual">
 					<string name="role" comments="~group~.~role~" />
 				</structure>
 			</in>
@@ -480,11 +480,36 @@ class Auth {
 
 
 
-	// check whether (actual) user is specific group(s) of any role
-	public static function userInGroup($groups=array(), $user=null) {
-		if ( empty($user) ) $user = self::user();
+	/**
+	<fusedoc>
+		<description>
+			check whether user is specific group(s) of any role
+			===> user precedence is {args > sim > actual}
+		</description>
+		<io>
+			<in>
+				<list name="$groups" default="" example="DEPT_A,DEPT_B">
+					<string name="*" />
+				</list>
+				<structure name="$user" optional="yes" default="sim > actual" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function userInGroup($groups='', $user=null) {
+		// get user data
+		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
+			$user = Sim::user();
+		} elseif ( empty($user) ) {
+			$user = self::user();
+		}
+		// turn into {group.role} convention
 		if ( is_string($groups) ) $groups = explode(',', $groups);
-		foreach ( $groups as $i => $val ) $groups[$i] = "{$val}.*";
+		foreach ( $groups as $key => $val ) $groups[$key] .= '.*';
+		// reuse method
 		return self::userIn($groups, $user);
 	}
 
