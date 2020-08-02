@@ -14,13 +14,9 @@ class Auth {
 	const SKIP_ALL_CHECK        = 3;
 
 
-
-
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
-
-
 
 
 	// get info or check permission of current user (sim > actual)
@@ -30,8 +26,6 @@ class Auth {
 	public static function activeUserIn($permissions='') { return self::userIn($permissions); }
 	public static function activeUserInGroup($groups='') { return self::userInGroup($groups); }
 	public static function activeUserInRole($roles='')   { return self::userInRole($roles); }
-
-
 
 
 	// get info or check permission of actual user
