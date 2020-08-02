@@ -23,52 +23,21 @@ class Auth {
 
 
 
-	// get information of simulated user or logged in user
-	// ===> return sim user info when simulating
-	// ===> otherwise, return logged in user
-	public static function activeUser($key=null) {
-		return ( class_exists('Sim') and Sim::user() ) ? Sim::user($key) : self::user($key);
-	}
+	// get info or check permission of current user (sim > actual)
+	// ===> keep for backward compatibility
+	public static function activeUser($key='')           { return self::user($key); }
+	public static function activeUserIn($permissions='') { return self::userIn($permissions); }
+	public static function activeUserInGroup($groups='') { return self::userInGroup($groups); }
+	public static function activeUserInRole($roles='')   { return self::userInRole($roles); }
 
 
 
 
-	// check whether active (sim > actual) user is specific group-role(s)
-	public static function activeUserIn($permissions=array()) {
-		return ( class_exists('Sim') and Sim::user() ) ? Sim::userIn($permissions) : self::userIn($permissions);
-	}
-
-
-
-
-	// check whether active (sim > actual) user is specific group(s)
-	public static function activeUserInGroup($groups=array()) {
-		return ( class_exists('Sim') and Sim::user() ) ? Sim::userInGroup($groups) : self::userInGroup($groups);
-	}
-
-
-
-
-	// check whether active (sim > actual) user is specific role(s)
-	public static function activeUserInRole($roles=array()) {
-		return ( class_exists('Sim') and Sim::user() ) ? Sim::userInRole($roles) : self::userInRole($roles);
-	}
-
-
-
-
-	public static function actualUser($key=null) {
-		return self::user($key);
-	}
-	public static function actualUserIn($permissions=null) {
-		return self::userIn($permissions);
-	}
-	public static function actualUserInGroup($groups=null) {
-		return self::userInGroup($groups);
-	}
-	public static function actualUserInRole($roles=null) {
-		return self::userInRole($roles);
-	}
+	// get info or check permission of actual user
+	public static function actualUser($key='')           { return empty($_SESSION['auth_user']) ? false : self::user($key, $_SESSION['auth_user']); }
+	public static function actualUserIn($permissions='') { return empty($_SESSION['auth_user']) ? false : self::userIn($permissions, $_SESSION['auth_user']); }
+	public static function actualUserInGroup($groups='') { return empty($_SESSION['auth_user']) ? false : self::userInGroup($groups, $_SESSION['auth_user']); }
+	public static function actualUserInRole($roles='')   { return empty($_SESSION['auth_user']) ? false : self::userInRole($roles, $_SESSION['auth_user']); }
 
 
 
