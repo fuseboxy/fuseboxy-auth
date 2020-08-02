@@ -357,15 +357,26 @@ class Auth {
 		</description>
 		<io>
 			<in>
+				<!-- cache -->
 				<structure name="auth_user" scope="$_SESSION" optional="yes">
 					<string name="~field~" />
 				</structure>
-				<string name="$key" optional="yes" />
+				<!-- parameter -->
+				<string name="$key" default="" />
 			</in>
 			<out>
-				<structure name="~return~" optional="yes" oncondition="when {key} is not defined" comments="all user fields" />
-				<string name="~return~" optional="yes" oncondition="when {key} is defined" comments="specific user field" />
-				<boolean name="~return~" value="false" optional="yes" oncondition="when failure : not logged in or {key} not found" />
+				<!-- all -->
+				<structure name="~return~" optional="yes" oncondition="when {key} is not defined">
+					<number name="id" />
+					<string name="role" />
+					<string name="username" />
+					<string name="password" />
+					<string name="fullname" />
+					<string name="email" />
+					<string name="tel" />
+				</structure>
+				<!-- single field -->
+				<string name="~return~" optional="yes" oncondition="when {key} is defined" />
 			</out>
 		</io>
 	</fusedoc>
@@ -392,24 +403,33 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
-			check whether user (actual user by default) is in specific group-roles
-			===> user-permission string is in {GROUP}.{ROLE} convention
+			check whether user is in specific group-roles
+			===> user precedence is {args > sim > actual}
+			===> user-permission string is in {GROUP}.{ROLE} convention (e.g. DEPT_A.ADMIN,DEPT_B.USER)
 			===> this function works for user assigned to single or multiple role(s)
-			===> if no group specified, then just consider it as role (of all group)
-			===> (case-insensitive)
-			===> e.g. DEPT_A.ADMIN,DEPT_B.USER
+			===> if {role} field has no group specified, then just consider it as role (of all group)
+			===> the checking is case-insensitive
 		</description>
 		<io>
 			<in>
+				<list name="queryPermissions" delim=",">
+					<string name="+" comments="~group~.~role~" example="DEPT_A.ADMIN" />
+				</list>
+				<structure name="$user" optional="yes">
+					<string name="role" comments="~group~.~role~" />
+				</structure>
 			</in>
 			<out>
+				<boolean name="~return~" />
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function userIn($queryPermissions=array(), $user=null) {
-		// default checking against actual user
-		if ( empty($user) ) {
+	public static function userIn($queryPermissions='', $user=null) {
+		// get user data
+		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
+			$user = Sim::user();
+		} elseif ( empty($user) ) {
 			$user = self::user();
 		}
 		// turn argument into array if it is a comma-delimited list
