@@ -218,25 +218,66 @@ class Auth {
 
 
 
-	// sign out user
+	/**
+	<fusedoc>
+		<description>
+			sign out user
+		</description>
+		<io>
+			<in />
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function logout() {
+		// clear sim user
 		if ( class_exists('Sim') ) {
 			$endSim = Sim::end();
-			if ( $endSim === false ) return false;
+			if ( $endSim === false ) {
+				self::$error = Sim::error();
+				return false;
+			}
 		}
+		// clear actual user
 		if ( isset($_SESSION['auth_user']) ) {
 			unset($_SESSION['auth_user']);
 		}
+		// done!
 		return true;
 	}
 
 
 
 
-	// refresh session (usually use after profile update)
+	/**
+	<fusedoc>
+		<description>
+			refresh session of actual user
+			===> usually being used after profile update
+		</description>
+		<io>
+			<in>
+				<structure name="auth_user" scope="$_SESSION" optional="yes">
+					<number name="id" />
+				</structure>
+			</in>
+			<out>
+				<!-- cache -->
+				<structure name="auth_user" scope="$_SESSION" />
+				<!-- return -->
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function refresh() {
 		// get latest data
-		$user = ORM::get('user', self::user('id'));
+		$id = self::actualUser('id');
+		if ( $id === false ) return false;
+		$user = ORM::get('user', $id);
+		// validation
 		if ( $user === false ) {
 			self::$error = ORM::error();
 			return false;
