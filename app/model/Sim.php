@@ -36,10 +36,10 @@ class Sim {
 
 	// obtain specific information of simulated user
 	// ===> return whole user structure if no variable name specified
-	public static function user($key=null) {
+	public static function user($key='') {
 		if ( empty($_SESSION['sim_user']) ) {
 			return false;
-		} elseif ( !isset($key) ) {
+		} elseif ( empty($key) ) {
 			return $_SESSION['sim_user'];
 		} elseif ( isset($_SESSION['sim_user'][$key]) ) {
 			return $_SESSION['sim_user'][$key];
