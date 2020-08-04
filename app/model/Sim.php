@@ -15,12 +15,12 @@ class Sim {
 
 
 	// start user sim
-	public static function start($user_id) {
+	public static function start($userID) {
 		// get user info (treat argument as username if not numeric)
-		if ( is_numeric($user_id) ) {
-			$bean = ORM::get('user', $user_id);
+		if ( is_numeric($userID) ) {
+			$bean = ORM::get('user', $userID);
 		} else {
-			$bean = ORM::first('user', 'username = ? ', array($user_id));
+			$bean = ORM::first('user', 'username = ? ', array($userID));
 		}
 		if ( $bean === false ) {
 			self::$error = ORM::error();
@@ -50,19 +50,19 @@ class Sim {
 
 
 	// check whether sim-user is specific group-roles
-	public static function userIn($rights=array()) {
-		return Auth::userIn($rights, self::user());
+	public static function userIn($permissions='') {
+		return Auth::userIn($permissions, self::user());
 	}
 
 
 	// check whether sim-user is specific groups
-	public static function userInGroup($groups=array()) {
+	public static function userInGroup($groups='') {
 		return Auth::userInGroup($groups, self::user());
 	}
 
 
 	// check whether sim-user is specific roles
-	public static function userInRole($roles=array()) {
+	public static function userInRole($roles='') {
 		return Auth::userInRole($roles, self::user());
 	}
 
