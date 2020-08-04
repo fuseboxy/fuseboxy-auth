@@ -1,16 +1,16 @@
 <?php
 F::redirect('auth', !Auth::user());
-F::error('Forbidden', !Auth::activeUserInRole('SUPER,ADMIN'));
+F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
 // default role & retain selected role
-if ( !isset($_SESSION['userController__userRole']) ) $_SESSION['userController__userRole'] = Auth::activeUser('role');
+if ( !isset($_SESSION['userController__userRole']) ) $_SESSION['userController__userRole'] = Auth::user('role');
 if ( isset($arguments['role']) ) $_SESSION['userController__userRole'] = $arguments['role'];
 
 
 // disallow user to see role with higher privilege
-if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::activeUser('role') != 'SUPER' ) {
-	$_SESSION['userController__userRole'] = Auth::activeUser('role');
+if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::user('role') != 'SUPER' ) {
+	$_SESSION['userController__userRole'] = Auth::user('role');
 }
 
 
@@ -28,7 +28,7 @@ if ( F::is('*.save') and !empty($arguments['data']['password']) ) {
 $scaffold = array(
 	'beanType' => 'user',
 	'editMode' => 'inline',
-	'allowDelete' => Auth::activeUserInRole('SUPER'),
+	'allowDelete' => Auth::userInRole('SUPER'),
 	'layoutPath' => F::appPath('view/user/layout.php'),
 	'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
 	'listOrder' => 'ORDER BY username',
@@ -40,7 +40,7 @@ $scaffold = array(
 	),
 	'fieldConfig' => array(
 		'id',
-		'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::activeUserInRole('SUPER')),
+		'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::userInRole('SUPER')),
 		'username' => array('icon' => 'fa fa-user small', 'placeholder' => true),
 		'password' => call_user_func(function(){
 			// no hash : simply show and edit password as normal field
