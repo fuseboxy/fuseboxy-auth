@@ -29,7 +29,7 @@ class Auth {
 
 
 	// get info or check permission of actual user
-	public static function actualUser($key='')           { return empty($_SESSION['auth_user']) ? false : self::user($key, $_SESSION['auth_user']); }
+	public static function actualUser($key='')           { return empty($_SESSION['auth_user']) ? false : $_SESSION['auth_user']; }
 	public static function actualUserIn($permissions='') { return empty($_SESSION['auth_user']) ? false : self::userIn($permissions, $_SESSION['auth_user']); }
 	public static function actualUserInGroup($groups='') { return empty($_SESSION['auth_user']) ? false : self::userInGroup($groups, $_SESSION['auth_user']); }
 	public static function actualUserInRole($roles='')   { return empty($_SESSION['auth_user']) ? false : self::userInRole($roles, $_SESSION['auth_user']); }
