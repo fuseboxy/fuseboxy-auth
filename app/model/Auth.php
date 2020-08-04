@@ -28,8 +28,51 @@ class Auth {
 	public static function activeUserInRole($roles='')   { return self::userInRole($roles); }
 
 
-	// get info or check permission of actual user
-	public static function actualUser($key='')           { return empty($_SESSION['auth_user']) ? false : $_SESSION['auth_user']; }
+
+
+	/**
+	<fusedoc>
+		<description>
+			get actual user information
+		</description>
+		<io>
+			<in>
+				<!-- cache -->
+				<structure name="auth_user" scope="$_SESSION" optional="yes">
+					<string name="~field~" />
+				</structure>
+				<!-- parameter -->
+				<string name="$key" default="" />
+			</in>
+			<out>
+				<!-- all -->
+				<structure name="~return~" optional="yes" oncondition="when {key} is not defined">
+					<number name="id" />
+					<string name="role" />
+					<string name="username" />
+					<string name="password" />
+					<string name="fullname" />
+					<string name="email" />
+					<string name="tel" />
+				</structure>
+				<!-- single field -->
+				<string name="~return~" optional="yes" oncondition="when {key} is defined" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function actualUser($key='') {
+		if ( empty($_SESSION['auth_user']) ) {
+			return false;
+		} elseif ( empty($key) ) {
+			return $_SESSION['auth_user'];
+		} elseif ( isset($_SESSION['auth_user'][$key]) ) {
+			return $_SESSION['auth_user'][$key];
+		} else {
+			return false;
+		}
+	}
+	// check permission of actual user
 	public static function actualUserIn($permissions='') { return empty($_SESSION['auth_user']) ? false : self::userIn($permissions, $_SESSION['auth_user']); }
 	public static function actualUserInGroup($groups='') { return empty($_SESSION['auth_user']) ? false : self::userInGroup($groups, $_SESSION['auth_user']); }
 	public static function actualUserInRole($roles='')   { return empty($_SESSION['auth_user']) ? false : self::userInRole($roles, $_SESSION['auth_user']); }
@@ -362,11 +405,6 @@ class Auth {
 		</description>
 		<io>
 			<in>
-				<!-- cache -->
-				<structure name="auth_user" scope="$_SESSION" optional="yes">
-					<string name="~field~" />
-				</structure>
-				<!-- parameter -->
 				<string name="$key" default="" />
 			</in>
 			<out>
@@ -387,19 +425,7 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function user($key='') {
-		// look for sim user first (then actual user)
-		if ( class_exists('Sim') and Sim::user() ) {
-			return Sim::user($key);
-		// get specific data
-		} elseif ( !empty($key) and isset($_SESSION['auth_user'][$key]) ) {
-			return $_SESSION['auth_user'][$key];
-		// get all data
-		} elseif ( isset($_SESSION['auth_user']) ) {
-			return $_SESSION['auth_user'];
-		// failed...
-		} else {
-			return false;
-		}
+		return ( class_exists('Sim') and Sim::user() ) Sim::user($key) : self::actualUser($key);
 	}
 
 
