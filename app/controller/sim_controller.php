@@ -1,6 +1,6 @@
 <?php
 F::redirect('auth', !Auth::user());
-F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
+F::error('Forbidden', !Auth::actualUserInRole('SUPER,ADMIN'));
 
 
 // run!
@@ -11,7 +11,7 @@ switch ( $fusebox->action ) :
 	case 'dropdown':
 		// get all users (non-super)
 		$filter = "id != ? AND role != 'SUPER' AND IFNULL(disabled, 0) = 0 ORDER BY role, username";
-		$param =  array( Auth::user('id') );
+		$param =  array( Auth::actualUser('id') );
 		$data = ORM::get('user', $filter, $param);
 		// group users by role
 		$users = array();
