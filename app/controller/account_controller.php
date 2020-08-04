@@ -8,7 +8,7 @@ switch ( $fusebox->action ) :
 
 	case 'profile':
 		// get record
-		$user = ORM::get('user', Auth::user('id'));
+		$user = ORM::get('user', Auth::actualUser('id'));
 		F::error(ORM::error(), $user === false);
 		// exit point
 		$xfa['submit'] = "{$fusebox->controller}.update_profile";
@@ -41,7 +41,7 @@ switch ( $fusebox->action ) :
 		F::error('No data were submitted', empty($arguments['data']));
 		// update record
 		// ===> remember {beforeSave|afterSave} for log
-		$bean = ORM::get('user', Auth::user('id'));
+		$bean = ORM::get('user', Auth::actualUser('id'));
 		F::error(ORM::error(), $bean === false);
 		$beforeSave = $bean->export();
 		$bean->import($arguments['data']);
@@ -79,7 +79,7 @@ switch ( $fusebox->action ) :
 			F::redirect("{$fusebox->controller}.password");
 		}
 		// update record
-		$bean = ORM::get('user', Auth::user('id'));
+		$bean = ORM::get('user', Auth::actualUser('id'));
 		F::error(ORM::error(), $bean === false);
 		$bean->password = Auth::hashPassword($arguments['new_password']);
 		$saveResult = ORM::save($bean);
