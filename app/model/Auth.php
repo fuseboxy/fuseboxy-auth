@@ -425,7 +425,7 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function user($key='') {
-		return ( class_exists('Sim') and Sim::user() ) Sim::user($key) : self::actualUser($key);
+		return ( class_exists('Sim') and Sim::user() ) ? Sim::user($key) : self::actualUser($key);
 	}
 
 
