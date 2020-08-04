@@ -133,7 +133,7 @@ switch ( $fusebox->action ) :
 
 
 	case 'logout':
-		$username = Auth::user('username');
+		$username = Auth::actualUser('username');
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), $logoutResult === false);
 		// write log
