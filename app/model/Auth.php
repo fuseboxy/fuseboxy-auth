@@ -152,11 +152,11 @@ class Auth {
 			return false;
 		}
 		// create default user
-		$defaultPassword = self::hashPassword('123456789');
+		$defaultPassword = '123456789';
 		$bean = ORM::new('user', array(
 			'role'     => 'SUPER',
 			'username' => 'developer',
-			'password' => $defaultPassword,
+			'password' => self::hashPassword($defaultPassword),
 			'disabled' => 0,
 		));
 		if ( $bean === false ) {
