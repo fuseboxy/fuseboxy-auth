@@ -58,7 +58,7 @@ $scaffold = array(
 		'email' => array('icon' => 'fa fa-envelope small', 'placeholder' => true),
 		'tel' => array('icon' => 'fa fa-phone small', 'placeholder' => true)
 	),
-	'writeLog' => true,
+	'writeLog' => class_exists('Log'),
 );
 
 
