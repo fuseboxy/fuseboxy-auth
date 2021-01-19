@@ -181,6 +181,15 @@ class Auth {
 			'username' => $bean->username,
 			'password' => self::$initUserDefaultPassword,
 		);
+		// write log (when necessary)
+		if ( class_exists('Log') and Log::write([
+			'username' => 'SYSTEM',
+			'action'   => 'INIT_USER',
+			'remark'   => $user,
+		]) === false ) {
+			self::$error = Log::error();
+			return false;
+		}
 		// done!
 		return true;
 	}
