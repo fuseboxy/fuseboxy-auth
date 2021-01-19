@@ -149,7 +149,11 @@ class Auth {
 	*/
 	public static function initUser(&$user=null) {
 		// validation
-		if ( ORM::count('user') ) {
+		$userCount = ORM::count('user');
+		if ( $userCount === false ) {
+			self::$error = ORM::error();
+			return false;
+		} elseif ( $userCount ) {
 			self::$error = 'User accounts already exist';
 			return false;
 		}
