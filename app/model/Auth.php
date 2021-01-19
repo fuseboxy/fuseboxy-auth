@@ -5,6 +5,7 @@ class Auth {
 	// configurable settings
 	public static $hashPassword = true;
 	public static $resetPasswordFrom = 'noreply@example.com';
+	public static $initUserDefaultPassword = '123456789';
 
 
 	// define constant
@@ -132,6 +133,7 @@ class Auth {
 		</description>
 		<io>
 			<in>
+				<string name="$initUserDefaultPassword" scope="self" />
 				<structure name="&$user" optional="yes" comments="pass by reference" />
 			</in>
 			<out>
@@ -147,16 +149,15 @@ class Auth {
 	*/
 	public static function initUser(&$user=null) {
 		// validation
-		if ( ORM::count('user') != 0 ) {
+		if ( ORM::count('user') ) {
 			self::$error = 'User accounts already exist';
 			return false;
 		}
 		// create default user
-		$defaultPassword = '123456789';
 		$bean = ORM::new('user', array(
 			'role'     => 'SUPER',
 			'username' => 'developer',
-			'password' => self::hashPassword($defaultPassword),
+			'password' => self::hashPassword( self::$initUserDefaultPassword ),
 			'disabled' => 0,
 		));
 		if ( $bean === false ) {
@@ -174,7 +175,7 @@ class Auth {
 			'id' => $id,
 			'role' => $bean->role,
 			'username' => $bean->username,
-			'password' => $defaultPassword,
+			'password' => self::$initUserDefaultPassword,
 		);
 		// done!
 		return true;
