@@ -213,7 +213,7 @@ class Auth {
 			self::$error = 'Class [Captcha] is required';
 			return false;
 		// validate captcha (when necessary)
-		} elseif ( $mode != self::SKIP_ALL_CHECK and Captcha::validate() === false ) {
+		} elseif ( $mode != self::SKIP_ALL_CHECK and !empty(F::config('captcha')) and Captcha::validate() === false ) {
 			self::$error = Captcha::error();
 			return false;
 		}
@@ -371,7 +371,7 @@ class Auth {
 			self::$error = 'Class [Captcha] is required';
 			return false;
 		// validate captcha (when necessary)
-		} elseif ( Captcha::validate() === false ) {
+		} elseif ( !empty(F::config('captcha')) and Captcha::validate() === false ) {
 			self::$error = Captcha::error();
 			return false;
 		// check other library
