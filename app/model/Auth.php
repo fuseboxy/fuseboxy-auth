@@ -226,10 +226,19 @@ class Auth {
 			self::$error = 'Password is required';
 			return false;
 		}
-		// get user record
+		// get user by username first
 		$user = ORM::first('user', 'username = ? ', array($data['username']));
+		if ( $user === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// then get user by email (when necessary)
 		if ( empty($user->id) ) {
 			$user = ORM::first('user', 'email = ? ', array($data['username']));
+			if ( $user === false ) {
+				self::$error = ORM::error();
+				return false;
+			}
 		}
 		// check user existence
 		if ( empty($user->id) ) {
