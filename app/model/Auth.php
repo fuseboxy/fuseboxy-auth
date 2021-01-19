@@ -266,7 +266,8 @@ class Auth {
 		}
 		// persist user info when succeed
 		// ===> php does not allow storing bean (object) in session
-		$_SESSION['auth_user'] = $user->export();
+		if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
+		else $_SESSION['auth_user'] = get_object_vars($user);
 		// done!
 		return true;
 	}
@@ -339,7 +340,8 @@ class Auth {
 			return false;
 		}
 		// persist data
-		$_SESSION['auth_user'] = $user->export();
+		if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
+		else $_SESSION['auth_user'] = get_object_vars($user);
 		// done!
 		return true;
 	}
