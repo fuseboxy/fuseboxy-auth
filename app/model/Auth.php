@@ -208,8 +208,12 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function login($data, $mode=0) {
-		// check captcha (when necessary)
-		if ( class_exists('Captcha') and Captcha::validate() === false and $mode != self::SKIP_ALL_CHECK ) {
+		// check captcha library (when necessary)
+		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
+			self::$error = 'Class [Captcha] is required';
+			return false;
+		// validate captcha (when necessary)
+		} elseif ( $mode != self::SKIP_ALL_CHECK and Captcha::validate() === false ) {
 			self::$error = Captcha::error();
 			return false;
 		}
@@ -360,11 +364,15 @@ class Auth {
 	*/
 	public static function resetPassword($email) {
 		$email = trim($email);
-		// check captcha (when necessary)
-		if ( class_exists('Captcha') and Captcha::validate() === false ) {
+		// check captcha library (when necessary)
+		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
+			self::$error = 'Class [Captcha] is required';
+			return false;
+		// validate captcha (when necessary)
+		} elseif ( Captcha::validate() === false ) {
 			self::$error = Captcha::error();
 			return false;
-		// check library
+		// check other library
 		} elseif ( !class_exists('Util') ) {
 			self::$error = 'Util component is required';
 			return false;
