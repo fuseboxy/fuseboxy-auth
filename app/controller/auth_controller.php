@@ -133,41 +133,18 @@ switch ( $fusebox->action ) :
 
 
 	case 'logout':
-		$username = Auth::actualUser('username');
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), $logoutResult === false);
-		// write log
-		if ( method_exists('Log', 'write') ) {
-			$logResult = Log::write(array(
-				'action' => 'LOGOUT',
-				'username' => $username
-			));
-			F::error(Log::error(), $logResult === false);
-		}
-		// return to index page
 		F::redirect('auth');
 		break;
 
 
 	case 'init':
-		// create first user (when necessary)
 		$initResult = Auth::initUser($defaultUser);
-		F::error(Auth::error(), $initResult === false);
-		// show message
 		$_SESSION['flash'] = array(
 			'type'    => ( $initResult === false ) ? 'danger' : 'success',
 			'message' => ( $initResult === false ) ? Auth::error() : "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})",
 		);
-		// write log
-		if ( method_exists('Log', 'write') ) {
-			$logResult = Log::write(array(
-				'username' => 'SYSTEM',
-				'action' => 'INIT_USER',
-				'remark' => $_SESSION['flash']['message'],
-			));
-			F::error(Log::error(), $logResult === false);
-		}
-		// return to form
 		F::redirect('auth.form');
 		break;
 

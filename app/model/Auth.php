@@ -298,17 +298,22 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function logout() {
-		// clear sim user
-		if ( class_exists('Sim') ) {
-			$endSim = Sim::end();
-			if ( $endSim === false ) {
-				self::$error = Sim::error();
-				return false;
-			}
+		$username = self::actualUser('username');
+		if ( $username === false ) return false;
+		// clear sim user (when necessary)
+		if ( class_exists('Sim') and Sim::end() === false ) {
+			self::$error = Sim::error();
+			return false;
 		}
 		// clear actual user
-		if ( isset($_SESSION['auth_user']) ) {
-			unset($_SESSION['auth_user']);
+		if ( isset($_SESSION['auth_user']) ) unset($_SESSION['auth_user']);
+		// write log (when necessary)
+		if ( class_exists('Log') and Log::write([
+			'action' => 'LOGOUT',
+			'username' => $username
+		]) === false ) {
+			self::$error = Log::error();
+			return false;
 		}
 		// done!
 		return true;
