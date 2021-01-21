@@ -27,11 +27,10 @@ switch ( $fusebox->action ) :
 		F::redirect('auth.init', ORM::count('user') == 0);
 		// exit point
 		$xfa['submit'] = 'auth.login';
-		if ( class_exists('Util') ) {
-			$xfa['forgot'] = 'auth.forgot';
-		}
+		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = 'auth.forgot';
 		// display : captcha
-		if ( class_exists('Captcha') ) {
+		if ( !empty(F::config('captcha')) ) {
+			F::error('Class [Captcha] is reqiured', !class_exists('Captcha'));
 			$layout['captcha'] = Captcha::getField();
 			F::error(Captcha::error(), $layout['captcha'] === false);
 		}
@@ -52,7 +51,8 @@ switch ( $fusebox->action ) :
 		$xfa['submit'] = 'auth.reset-password';
 		$xfa['login'] = 'auth.form';
 		// display : captcha
-		if ( class_exists('Captcha') ) {
+		if ( !empty(F::config('captcha')) ) {
+			F::error('Class [Captcha] is reqiured', !class_exists('Captcha'));
 			$layout['captcha'] = Captcha::getField();
 			F::error(Captcha::error(), $layout['captcha'] === false);
 		}
