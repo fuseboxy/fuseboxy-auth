@@ -215,64 +215,63 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function login($data, $mode=1) {
+		$hasError = false;
 		// fix data (when necessary)
-		if ( is_string($data) ) {
-			$data = array('username' => $data);
-		}
+		if ( is_string($data) ) $data = array('username' => $data);
 		// check captcha class exists
 		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
-			$errResult = 'Class [Captcha] is required';
+			$hasError = 'Class [Captcha] is required';
 		// validate captcha
 		} elseif ( !empty(F::config('captcha')) and Captcha::validate() === false ) {
-			$errResult = Captcha::error();
+			$hasError = Captcha::error();
 		// check username exists
 		} elseif ( empty($data['username']) ) {
-			$errResult = 'Username or email is required';
+			$hasError = 'Username or email is required';
 		// check password exists
 		} elseif ( empty($data['password']) and $mode == self::PASSWORD_CHECK ) {
-			$errResult = 'Password is required';
+			$hasError = 'Password is required';
 		}
 		// find user by username first
-		if ( empty($errResult) ) {
+		if ( !$hasError ) {
 			$user = ORM::first('user', 'username = ? ', array($data['username']));
-			if ( $user === false ) $errResult = ORM::error();
+			if ( $user === false ) $hasError = ORM::error();
 		}
 		// find user by email then
-		if ( empty($errResult) and empty($user->id) ) {
+		if ( !$hasError and empty($user->id) ) {
 			$user = ORM::first('user', 'email = ? ', array($data['username']));
-			if ( $user === false ) $errResult = ORM::error();
+			if ( $user === false ) $hasError = ORM::error();
 		}
 		// check user exists
-		if ( empty($errResult) and empty($user->id) ) {
-			$errResult = "User account <strong><em>{$data['username']}</em></strong> not found";
+		if ( !$hasError and empty($user->id) ) {
+			$hasError = "User account <strong><em>{$data['username']}</em></strong> not found";
 		}
 		// check user status
-		if ( empty($errResult) and $user->disabled ) {
+		if ( !$hasError and $user->disabled ) {
 			$field = ( $user->email == $data['username'] ) ? 'email' : 'username';
-			$errResult = "User account was disabled ({$field}={$data['username']})";
+			$hasError = "User account was disabled ({$field}={$data['username']})";
 		}
 		// check password (case-sensitive)
-		if ( empty($errResult) and $user->password != self::hashPassword($data['password']) ) {
-			$errResult = 'Password is incorrect';
+		if ( !$hasError and $user->password != self::hashPassword($data['password']) ) {
+			$hasError = 'Password is incorrect';
 		}
 		// persist user info as array (php could not store object into session)
-		if ( empty($errResult) ) {
+		if ( !$hasError ) {
 			if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
 			else $_SESSION['auth_user'] = get_object_vars($user);
 		}
 		// write log (when necessary)
 		if ( class_exists('Log') and Log::write([
 			'action' => 'LOGIN',
-			'remark' => !empty($errResult) ? array(
+			'remark' => !$hasError ? null : array(
 				'FAILED',
 				'username' => $data['username'],
 				'ip'       => $_SERVER['REMOTE_ADDR'],
-				'error'    => $errResult,
-			) : null,
-		]) === false ) $errResult = Log::error();
+				'error'    => $hasError,
+			),
+		]) === false ) $hasError = Log::error();
 		// check any error (after write log)
-		if ( !empty($errResult) ) {
-			self::$error = $errResult;
+		if ( $hasError ) {
+			self::$error = $hasError;
 			return false;
 		}
 		// done!
