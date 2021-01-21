@@ -9,10 +9,9 @@ class Auth {
 
 
 	// define constant
-	const NORMAL_PASSWORD_CHECK = 0;
-	const HASHED_PASSWORD_CHECK = 1;
-	const SKIP_PASSWORD_CHECK   = 2;
-	const SKIP_ALL_CHECK        = 3;
+	const PASSWORD_CHECK = 0;  // check password
+	const SKIP_PWD_CHECK = 1;  // no check on password
+	const SKIP_ALL_CHECK = 2;  // no check on password & captcha
 
 
 	// get (latest) error message
@@ -205,10 +204,10 @@ class Auth {
 		<io>
 			<in>
 				<structure name="$data">
-					<string name="username" />
+					<string name="username" comments="username or email" />
 					<string name="password" />
 				</structure>
-				<number name="$mode" optional="yes" default="~NORMAL_PASSWORD_CHECK~" />
+				<number name="$mode" optional="yes" default="~PASSWORD_CHECK~" />
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -217,66 +216,66 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function login($data, $mode=0) {
-		// check captcha library (when necessary)
-		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
-			self::$error = 'Class [Captcha] is required';
-			return false;
-		// validate captcha (when necessary)
-		} elseif ( $mode != self::SKIP_ALL_CHECK and !empty(F::config('captcha')) and Captcha::validate() === false ) {
-			self::$error = Captcha::error();
-			return false;
-		}
-		// transform data (when necessary)
+		// fix data (when necessary)
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
 		}
-		// validation
-		if ( empty($data['username']) ) {
-			self::$error = 'Username or email is required';
-			return false;
+		// check captcha class exists
+		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
+			$errResult = 'Class [Captcha] is required';
+		// validate captcha
+		} elseif ( $mode != self::SKIP_ALL_CHECK and !empty(F::config('captcha')) and Captcha::validate() === false ) {
+			$errResult = Captcha::error();
+		// check username exists
+		} elseif ( empty($data['username']) ) {
+			$errResult = 'Username or email is required';
+		// check password exists
+		} elseif ( empty($data['password']) and $mode == self::PASSWORD_CHECK ) {
+			$errResult = 'Password is required';
 		}
-		if ( empty($data['password']) and $mode != self::SKIP_PASSWORD_CHECK and $mode != self::SKIP_ALL_CHECK ) {
-			self::$error = 'Password is required';
-			return false;
+		// find user by username first
+		if ( empty($errResult) ) {
+			$user = ORM::first('user', 'username = ? ', array($data['username']));
+			if ( $user === false ) $errResult = ORM::error();
 		}
-		// get user by username first
-		$user = ORM::first('user', 'username = ? ', array($data['username']));
-		if ( $user === false ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		// then get user by email (when necessary)
-		if ( empty($user->id) ) {
+		// find user by email then
+		if ( empty($errResult) and empty($user->id) ) {
 			$user = ORM::first('user', 'email = ? ', array($data['username']));
-			if ( $user === false ) {
-				self::$error = ORM::error();
-				return false;
-			}
+			if ( $user === false ) $errResult = ORM::error();
 		}
-		// check user existence
-		if ( empty($user->id) ) {
-			self::$error = "User account <strong><em>{$data['username']}</em></strong> not found";
-			return false;
+		// check user exists
+		if ( empty($errResult) and empty($user->id) ) {
+			$errResult = "User account <strong><em>{$data['username']}</em></strong> not found";
 		}
 		// check user status
-		if ( !empty($user->disabled) ) {
-			self::$error = 'User account was disabled';
+		if ( empty($errResult) and $user->disabled ) {
 			$field = ( $user->email == $data['username'] ) ? 'email' : 'username';
-			self::$error .= " ({$field}={$data['username']})";
-			return false;
+			$errResult = "User account was disabled ({$field}={$data['username']})";
 		}
 		// check password (case-sensitive)
-		if ( false
-			or ( $mode == self::HASHED_PASSWORD_CHECK and $user->password != $data['password'] )
-			or ( $mode == self::NORMAL_PASSWORD_CHECK and $user->password != self::hashPassword($data['password']) )
-		) {
-			self::$error = 'Password is incorrect';
+		if ( empty($errResult) and $user->password != self::hashPassword($data['password']) ) {
+			$errResult = 'Password is incorrect';
+		}
+		// persist user info as array (php could not store object into session)
+		if ( empty($errResult) ) {
+			if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
+			else $_SESSION['auth_user'] = get_object_vars($user);
+		}
+		// write log (when necessary)
+		if ( class_exists('Log') and Log::write([
+			'action' => 'LOGIN',
+			'remark' => !empty($errResult) ? array(
+				'FAILED',
+				'username' => $data['username'],
+				'ip'       => $_SERVER['REMOTE_ADDR'],
+				'error'    => $errResult,
+			) : null,
+		]) === false ) $errResult = Log::error();
+		// check any error (after write log)
+		if ( !empty($errResult) ) {
+			self::$error = $errResult;
 			return false;
 		}
-		// persist user info when succeed
-		// ===> php does not allow storing bean (object) in session
-		if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
-		else $_SESSION['auth_user'] = get_object_vars($user);
 		// done!
 		return true;
 	}
@@ -390,7 +389,7 @@ class Auth {
 			return false;
 		// check other library
 		} elseif ( !class_exists('Util') ) {
-			self::$error = 'Util component is required';
+			self::$error = 'Class [Util] is required';
 			return false;
 		// check email format
 		} elseif ( empty($email) ) {
