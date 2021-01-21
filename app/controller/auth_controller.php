@@ -68,11 +68,12 @@ switch ( $fusebox->action ) :
 
 	case 'reset-password':
 		F::error('No email was provided', empty($arguments['data']['email']));
+		// proceed to reset
 		$resetResult = Auth::resetPassword($arguments['data']['email']);
-		$_SESSION['flash'] = array(
-			'type'    => ( $resetResult === false ) ? 'danger' : 'success',
-			'message' => ( $resetResult === false ) ? Auth::error() : "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>",
-		);
+		// prepare message
+		if ( $resetResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
+		else $_SESSION['flash'] = array('type' => 'success', 'message' => "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>");
+		// back to form (with message)
 		F::redirect('auth.forgot');
 		break;
 
@@ -80,33 +81,10 @@ switch ( $fusebox->action ) :
 	case 'login':
 		F::error('No data were submitted', empty($arguments['data']));
 		// proceed to login
-		$authResult = Auth::login($arguments['data']);
-		// write log
-		if ( isset($arguments['data']['email']) ) {
-			$uid = $arguments['data']['email'];
-		} elseif ( isset($arguments['data']['username']) ) {
-			$uid = $arguments['data']['username'];
-		} else {
-			$uid = '';
-		}
-		if ( method_exists('Log', 'write') ) {
-			if ( $authResult === false ) {
-				$remark  = 'FAILED'.PHP_EOL;
-				$remark .= '[username] '.$uid.PHP_EOL;
-				$remark .= '[ip] '.$_SERVER['REMOTE_ADDR'].PHP_EOL;
-				$remark .= '[error] '.Auth::error();
-			}
-			$logResult = Log::write(array(
-				'action' => 'LOGIN',
-				'remark' => !empty($remark) ? $remark : null,
-			));
-			F::error(Log::error(), $logResult === false);
-		}
+		$loginResult = Auth::login($arguments['data']);
 		// failure : show message
-		if ( $authResult === false ) {
-			$_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
-			F::redirect('auth.form');
-		}
+		if ( $loginResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
+		F::redirect('auth.form', isset($_SESSION['flash']['type']) and $_SESSION['flash']['type'] == 'danger');
 		// success : go to default page
 		F::redirect(F::config('defaultCommand'));
 		break;
@@ -121,10 +99,10 @@ switch ( $fusebox->action ) :
 
 	case 'init':
 		$initResult = Auth::initUser($defaultUser);
-		$_SESSION['flash'] = array(
-			'type'    => ( $initResult === false ) ? 'danger' : 'success',
-			'message' => ( $initResult === false ) ? Auth::error() : "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})",
-		);
+		// prepare message
+		if ( $initResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
+		else $_SESSION['flash'] = array('type' => 'success', 'message' => "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})");
+		// back to form (with message)
 		F::redirect('auth.form');
 		break;
 
