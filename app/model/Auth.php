@@ -9,9 +9,8 @@ class Auth {
 
 
 	// define constant
-	const PASSWORD_CHECK = 0;  // check password
-	const SKIP_PWD_CHECK = 1;  // no check on password
-	const SKIP_ALL_CHECK = 2;  // no check on password & captcha
+	const PASSWORD_CHECK = 1;
+	const SKIP_PWD_CHECK = 0;
 
 
 	// get (latest) error message
@@ -215,7 +214,7 @@ class Auth {
 		</io>
 	</fusedoc>
 	*/
-	public static function login($data, $mode=0) {
+	public static function login($data, $mode=1) {
 		// fix data (when necessary)
 		if ( is_string($data) ) {
 			$data = array('username' => $data);
@@ -224,7 +223,7 @@ class Auth {
 		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
 			$errResult = 'Class [Captcha] is required';
 		// validate captcha
-		} elseif ( $mode != self::SKIP_ALL_CHECK and !empty(F::config('captcha')) and Captcha::validate() === false ) {
+		} elseif ( !empty(F::config('captcha')) and Captcha::validate() === false ) {
 			$errResult = Captcha::error();
 		// check username exists
 		} elseif ( empty($data['username']) ) {
