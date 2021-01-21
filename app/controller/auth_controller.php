@@ -77,22 +77,11 @@ switch ( $fusebox->action ) :
 
 	case 'reset-password':
 		F::error('No email was provided', empty($arguments['data']['email']));
-		// proceed to reset password
 		$resetResult = Auth::resetPassword($arguments['data']['email']);
-		// show message
 		$_SESSION['flash'] = array(
 			'type'    => ( $resetResult === false ) ? 'danger' : 'success',
 			'message' => ( $resetResult === false ) ? Auth::error() : "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>",
 		);
-		// write log
-		if ( method_exists('Log', 'write') ) {
-			$logResult = Log::write(array(
-				'action' => 'reset-password',
-				'remark' => $mailResult ? '' : Util::error(),
-			));
-			F::error(Log::error(), $logResult === false);
-		}
-		// show message
 		F::redirect('auth.forgot');
 		break;
 

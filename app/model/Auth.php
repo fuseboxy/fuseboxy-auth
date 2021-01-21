@@ -411,6 +411,13 @@ class Auth {
 		}
 		// generate random password
 		$random = self::generateRandomPassword();
+		// save random password
+		$user->password = self::hashPassword($random);
+		$saveResult = ORM::save($user);
+		if ( $saveResult === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
 		// send mail (do not send when unit test)
 		$mailResult = ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) ? true : Util::sendMail(array(
 			'from_name' => 'No Reply',
@@ -419,15 +426,17 @@ class Auth {
 			'subject' => 'Your password has been reset successfully',
 			'body' => 'New password: '.$random,
 		));
-		if ( $mailResult === false ) {
-			self::$error = Util::error();
+		// write log (when necessary)
+		if ( class_exists('Log') and Log::write([
+			'action' => 'reset-password',
+			'remark' => ( $mailResult === false ) ? Util::error() : '',
+		]) === false ) {
+			self::$error = Log::error();
 			return false;
 		}
-		// save random password
-		$user->password = self::hashPassword($random);
-		$saveResult = ORM::save($user);
-		if ( $saveResult === false ) {
-			self::$error = ORM::error();
+		// notify mail error after writing log (when necessary)
+		if ( $mailResult === false ) {
+			self::$error = Util::error();
 			return false;
 		}
 		// done!
