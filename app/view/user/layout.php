@@ -7,9 +7,7 @@ $tabLayout = array(
 	'nav' => call_user_func(function(){
 		$menus = array();
 		// all existing roles
-		$roles = array_map(function($item){
-			return $item['role'];
-		}, ORM::query('SELECT DISTINCT role FROM user WHERE role != ? ORDER BY role ASC', array('SUPER')));
+		$roles = ORM::query('SELECT DISTINCT role FROM user WHERE role != ? ORDER BY role ASC', ['SUPER'], 'col');
 		if ( Auth::userInRole('SUPER') ) array_unshift($roles, 'SUPER');
 		// put into result
 		foreach ( $roles as $item ) {
