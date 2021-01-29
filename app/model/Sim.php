@@ -28,7 +28,7 @@ class Sim {
 		}
 		// start simulation
 		// ===> php does not allow storing bean (object) in session
-		$_SESSION['sim_user'] = $bean->export();
+		$_SESSION['sim_user'] = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
 		// result
 		return true;
 	}
