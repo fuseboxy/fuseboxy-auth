@@ -256,8 +256,7 @@ class Auth {
 		}
 		// persist user info as array (php could not store object into session)
 		if ( !$hasError ) {
-			if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
-			else $_SESSION['auth_user'] = get_object_vars($user);
+			$_SESSION['auth_user'] = method_exists($user, 'export') ? $user->export() : get_object_vars($user);
 		}
 		// write log (when necessary)
 		if ( class_exists('Log') and Log::write([
@@ -351,8 +350,7 @@ class Auth {
 			return false;
 		}
 		// persist data
-		if ( ORM::vendor() == 'redbean' ) $_SESSION['auth_user'] = $user->export();
-		else $_SESSION['auth_user'] = get_object_vars($user);
+		$_SESSION['auth_user'] = method_exists($user, 'export') ? $user->export() : get_object_vars($user);
 		// done!
 		return true;
 	}
