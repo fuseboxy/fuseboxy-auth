@@ -44,7 +44,7 @@ switch ( $fusebox->action ) :
 		$bean = ORM::get('user', Auth::actualUser('id'));
 		F::error(ORM::error(), $bean === false);
 		$beforeSave = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
-		$bean->import($arguments['data']);
+		foreach ( $arguments['data'] as $key => $val ) $bean->{$key} = $val;
 		$afterSave = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
 		$saveResult = ORM::save($bean);
 		F::error(ORM::error(), $saveResult === false);
