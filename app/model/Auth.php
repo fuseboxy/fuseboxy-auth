@@ -256,7 +256,7 @@ class Auth {
 		}
 		// persist user info as array (php could not store object into session)
 		if ( !$hasError ) {
-			$_SESSION['auth_user'] = method_exists($user, 'export') ? $user->export() : get_object_vars($user);
+			$_SESSION['auth_user'] = Bean::export($user);
 		}
 		// write log (when necessary)
 		if ( class_exists('Log') and Log::write([
@@ -350,7 +350,7 @@ class Auth {
 			return false;
 		}
 		// persist data
-		$_SESSION['auth_user'] = method_exists($user, 'export') ? $user->export() : get_object_vars($user);
+		$_SESSION['auth_user'] = Bean::export($user);
 		// done!
 		return true;
 	}

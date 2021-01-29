@@ -43,9 +43,9 @@ switch ( $fusebox->action ) :
 		// ===> remember {beforeSave|afterSave} for log
 		$bean = ORM::get('user', Auth::actualUser('id'));
 		F::error(ORM::error(), $bean === false);
-		$beforeSave = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
+		$beforeSave = Bean::export($bean);
 		foreach ( $arguments['data'] as $key => $val ) $bean->{$key} = $val;
-		$afterSave = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
+		$afterSave = Bean::export($bean);
 		$saveResult = ORM::save($bean);
 		F::error(ORM::error(), $saveResult === false);
 		// refresh session
