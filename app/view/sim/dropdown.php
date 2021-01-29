@@ -33,7 +33,7 @@
 				<a
 					href="<?php echo F::url($xfa['start'].'&user_id='.$id); ?>"
 					class="dropdown-item <?php if ( Sim::user('id') == $id ) echo 'active'; ?>"
-				><?php echo $item['username']; ?></a>
+				><?php echo $item->username; ?></a>
 			</li>
 		<?php endforeach; ?>
 	<?php endforeach; ?>
