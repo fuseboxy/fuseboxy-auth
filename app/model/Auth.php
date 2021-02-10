@@ -9,8 +9,9 @@ class Auth {
 
 
 	// define constant
-	const PASSWORD_CHECK = 1;
-	const SKIP_PWD_CHECK = 0;
+	const SKIP_PASSWORD_CHECK = 'c';
+	const SKIP_CAPTCHA_CHECK = 'p';
+	const SKIP_ALL_CHECK = '';
 
 
 	// get (latest) error message
@@ -206,7 +207,9 @@ class Auth {
 					<string name="username" comments="username or email" />
 					<string name="password" />
 				</structure>
-				<number name="$mode" optional="yes" default="~PASSWORD_CHECK~" />
+				<list name="$check" optional="yes" default="c,p">
+					<string name="+" comments="c=Captcha;p=Password" />
+				</list>
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -214,21 +217,25 @@ class Auth {
 		</io>
 	</fusedoc>
 	*/
-	public static function login($data, $mode=1) {
+	public static function login($data, $check='c,p') {
 		$hasError = false;
 		// fix data (when necessary)
 		if ( is_string($data) ) $data = array('username' => $data);
+		if ( !is_array($check) ) $check = explode(',', $check);
+		$check = array_map('strtolower', array_filter($check));
 		// check captcha class exists
-		if ( !empty(F::config('captcha')) and !class_exists('Captcha') ) {
-			$hasError = 'Class [Captcha] is required';
+		if ( !class_exists('Captcha') and !empty(F::config('captcha')) ) {
+			self::$error = 'Class [Captcha] is required';
+			return false;
+		}
 		// validate captcha
-		} elseif ( !empty(F::config('captcha')) and Captcha::validate() === false ) {
+		if ( in_array('c', $check) and !empty(F::config('captcha')) and Captcha::validate() === false ) {
 			$hasError = Captcha::error();
 		// check username exists
 		} elseif ( empty($data['username']) ) {
 			$hasError = 'Username or email is required';
 		// check password exists
-		} elseif ( empty($data['password']) and $mode == self::PASSWORD_CHECK ) {
+		} elseif ( in_array('p', $check) and empty($data['password']) ) {
 			$hasError = 'Password is required';
 		}
 		// find user by username first
@@ -251,7 +258,7 @@ class Auth {
 			$hasError = "User account was disabled ({$field}={$data['username']})";
 		}
 		// check password (case-sensitive)
-		if ( !$hasError and $user->password != self::hashPassword($data['password']) ) {
+		if ( !$hasError and in_array('p', $check) and $user->password != self::hashPassword($data['password']) ) {
 			$hasError = 'Password is incorrect';
 		}
 		// persist user info as array (php could not store object into session)
