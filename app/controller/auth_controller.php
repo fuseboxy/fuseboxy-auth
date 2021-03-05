@@ -24,7 +24,9 @@ switch ( $fusebox->action ) :
 		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// create default account (when necessary)
-		F::redirect('auth.init', ORM::count('user') == 0);
+		$userCount = ORM::count('user');
+		F::error(ORM::error(), $userCount === false);
+		F::redirect('auth.init', $userCount == 0);
 		// exit point
 		$xfa['submit'] = 'auth.login';
 		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = 'auth.forgot';
