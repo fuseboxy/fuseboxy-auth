@@ -1,8 +1,9 @@
-Fuseboxy Auth
-=============
+Fuseboxy Auth (v3.x)
+====================
 
 
-[dependencies]
-Fuseboxy framework core
-RedBeanPHP (3.x or higher)
-Session enabled
+## Dependencies
+* Fuseboxy Framework Core (1.x)
+* Fuseboxy Layout (3.x)
+* Fuseboxy ORM (latest)
+* Session enabled
