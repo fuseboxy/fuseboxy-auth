@@ -21,7 +21,7 @@ if ( isset($arguments['data']['password']) and empty($arguments['data']['passwor
 // perform password hashing before save (when neccessary)
 if ( F::is('*.save') and !empty($arguments['data']['password']) ) {
 	$arguments['data']['password'] = Auth::hashPassword($arguments['data']['password']);
-} 
+}
 
 
 // config
