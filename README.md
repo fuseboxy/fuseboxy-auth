@@ -1,9 +1,8 @@
-Fuseboxy Auth (v3.x)
+Fuseboxy Auth (v2.x)
 ====================
 
 
 ## Dependencies
 * Fuseboxy Framework Core (1.x)
-* Fuseboxy Layout (3.x) - with Bootstrap 5.x
+* Fuseboxy Layout (2.x)
 * Fuseboxy ORM (latest)
-* Session enabled
