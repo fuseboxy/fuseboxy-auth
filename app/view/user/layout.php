@@ -3,7 +3,7 @@
 $tabLayout = array(
 	'style' => 'tab',
 	'position' => 'left',
-	'header' => '<h3>User</h3>',
+	'header' => 'User',
 	'nav' => call_user_func(function(){
 		$menus = array();
 		// all existing roles

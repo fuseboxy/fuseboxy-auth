@@ -1,7 +1,7 @@
 <?php
 // config
 $tabLayout = array(
-	'header' => '<h3>My Account</h3>',
+	'header' => 'My Account',
 	'style' => 'tabs',
 	'nav' => array(
 		array('name' => 'Update Profile', 'url' => F::url("{$fusebox->controller}.profile"), 'active' => F::is('*.profile,*.update_profile')),
