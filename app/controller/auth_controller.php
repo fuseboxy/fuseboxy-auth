@@ -6,9 +6,9 @@ switch ( $fusebox->action ) :
 		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// go to login form when no CAS login
-		F::redirect('auth.form', !file_exists(F::appPath('controller/cas_controller.php')));
+		F::redirect('auth.form', !file_exists(F::appPath('controller/sso_controller.php')));
 		// exit point
-		$xfa['cas'] = 'cas';
+		$xfa['sso'] = 'sso';
 		$xfa['local'] = 'auth.form';
 		// display
 		ob_start();
