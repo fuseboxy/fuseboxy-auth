@@ -508,11 +508,9 @@ class Auth {
 	*/
 	public static function userIn($permissions='', $user=null) {
 		// get user data
-		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
-			$user = Sim::user();
-		} elseif ( empty($user) ) {
-			$user = self::actualUser();
-		}
+		if ( $user === null ) $user = ( class_exists('Sim') and Sim::user() ) ? Sim::user() : self::actualUser();
+		// simply quit when not logged in
+		if ( $user === false ) return false;
 		// turn argument into array if it is a comma-delimited list
 		if ( is_string($permissions) ) $permissions = explode(',', $permissions);
 		// cleanse permission-to-check before comparison
@@ -578,16 +576,10 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function userInGroup($groups='', $user=null) {
-		// get user data
-		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
-			$user = Sim::user();
-		} elseif ( empty($user) ) {
-			$user = self::actualUser();
-		}
-		// turn into {group.role} convention
+		// convert to {group.role} convention
 		if ( is_string($groups) ) $groups = explode(',', $groups);
 		foreach ( $groups as $key => $val ) $groups[$key] .= '.*';
-		// reuse method
+		// done!
 		return self::userIn($groups, $user);
 	}
 
@@ -614,16 +606,10 @@ class Auth {
 	</fusedoc>
 	*/
 	public static function userInRole($roles='', $user=null) {
-		// get user data
-		if ( empty($user) and class_exists('Sim') and Sim::user() ) {
-			$user = Sim::user();
-		} elseif ( empty($user) ) {
-			$user = self::actualUser();
-		}
-		// turn into {group.role} convention
+		// convert to {group.role} convention
 		if ( is_string($roles) ) $roles = explode(',', $roles);
 		foreach ( $roles as $key => $val ) $roles[$key] = '*.'.$val;
-		// reuse method
+		// done!
 		return self::userIn($roles, $user);
 	}
 
