@@ -18,14 +18,19 @@ switch ( $fusebox->action ) {
 
 	// data manipulation before save
 	case 'save':
+		// do not allow empty password (when create user)
+		if ( isset($arguments['data']['password']) and trim($arguments['data']['password']) === '' ) {
+			$arguments['data']['password'] = Auth::generateRandomPassword(64);
+			F::error(Auth::error(), $arguments['data']['password'] === false);
+		}
 		// change password (when specified)
 		if ( !empty($arguments['data']['new_password']) ) $arguments['data']['password'] = $arguments['new_password'];
 		// remove new password (because no such field in database)
 		if ( isset($arguments['data']['new_password']) ) unset($arguments['data']['new_password']);
 		// perform password hashing (when password specified)
 		$arguments['data']['password'] = Auth::hashPassword($arguments['data']['password']);
-		// [IMPORTANT] no break
-		// ===> continue saving by scaffold
+		F::error(Auth::error(), $arguments['data']['password'] === false);
+		// [NOTE] no break ===> save by scaffold
 
 
 	// crud operations
@@ -48,7 +53,7 @@ switch ( $fusebox->action ) {
 				'id',
 				'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'readonly' => !Auth::userInRole('SUPER')),
 				'username' => array('icon' => 'fa fa-user small', 'placeholder' => true),
-'password' => call_user_func(function(){
+F::is('*.edit') ? 'new_password' : 'password' => call_user_func(function(){
 	// no hash : simply show and edit password as normal field
 	if ( !Auth::$hashPassword ) {
 		return array('icon' => 'fa fa-key small', 'placeholder' => true);
