@@ -3,10 +3,11 @@ switch ( $fusebox->action ) :
 
 
 	case 'index':
-		// go to default page when logged in
+		$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
+		// go to default page (when already signed in)
 		F::redirect(F::config('defaultCommand'), Auth::user());
-		// go to login form when no CAS login
-		F::redirect('auth.form', !file_exists(F::appPath('controller/sso_controller.php')));
+		// go to login form (when sso not available)
+		F::redirect('auth.form', !$hasSSO);
 		// exit point
 		$xfa['sso'] = 'sso';
 		$xfa['local'] = 'auth.form';
@@ -93,8 +94,13 @@ switch ( $fusebox->action ) :
 
 
 	case 'logout':
+		$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
+		// perform sso logout (when available)
+		F::redirect('sso.logout', $hasSSO);
+		// proceed to logout
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), $logoutResult === false);
+		// return to login form
 		F::redirect('auth');
 		break;
 
