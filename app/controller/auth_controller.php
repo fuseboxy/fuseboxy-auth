@@ -1,9 +1,13 @@
 <?php
+// check any custom SSO module
+$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
+
+
+// run!
 switch ( $fusebox->action ) :
 
 
 	case 'index':
-		$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
 		// go to default page (when already signed in)
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// go to login form (when sso not available)
@@ -94,7 +98,6 @@ switch ( $fusebox->action ) :
 
 
 	case 'logout':
-		$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
 		// perform sso logout (when available)
 		F::redirect('sso.logout', $hasSSO);
 		// proceed to logout
