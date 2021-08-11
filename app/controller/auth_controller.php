@@ -10,11 +10,11 @@ switch ( $fusebox->action ) :
 	case 'index':
 		// go to default page (when already signed in)
 		F::redirect(F::config('defaultCommand'), Auth::user());
-		// go to login form (when sso not available)
-		F::redirect('auth.form', !$hasSSO);
 		// exit point
 		$xfa['sso'] = 'sso';
-		$xfa['local'] = 'auth.form';
+		$xfa['local'] = "{$fusebox->controller}.form";
+		// go to login form (when sso not available)
+		F::redirect($xfa['local'], !$hasSSO);
 		// display
 		ob_start();
 		include F::appPath('view/auth/index.php');
@@ -31,10 +31,10 @@ switch ( $fusebox->action ) :
 		// create default account (when necessary)
 		$userCount = ORM::count('user');
 		F::error(ORM::error(), $userCount === false);
-		F::redirect('auth.init', $userCount == 0);
+		F::redirect("{$fusebox->controller}.init", $userCount == 0);
 		// exit point
-		$xfa['submit'] = 'auth.login';
-		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = 'auth.forgot';
+		$xfa['submit'] = "{$fusebox->controller}.login";
+		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = "{$fusebox->controller}.forgot";
 		// display : captcha
 		if ( !empty(F::config('captcha')) ) {
 			F::error('Class [Captcha] is reqiured', !class_exists('Captcha'));
@@ -55,8 +55,8 @@ switch ( $fusebox->action ) :
 		// go to default page when logged in
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
-		$xfa['submit'] = 'auth.reset-password';
-		$xfa['login'] = 'auth.form';
+		$xfa['submit'] = "{$fusebox->controller}.reset-password";
+		$xfa['login'] = "{$fusebox->controller}.form";
 		// display : captcha
 		if ( !empty(F::config('captcha')) ) {
 			F::error('Class [Captcha] is reqiured', !class_exists('Captcha'));
@@ -81,7 +81,7 @@ switch ( $fusebox->action ) :
 		if ( $resetResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		else $_SESSION['flash'] = array('type' => 'success', 'message' => "New password has been sent to <strong><em>{$arguments['data']['email']}<em></strong>");
 		// back to form (with message)
-		F::redirect('auth.forgot');
+		F::redirect("{$fusebox->controller}.forgot");
 		break;
 
 
@@ -91,7 +91,7 @@ switch ( $fusebox->action ) :
 		$loginResult = Auth::login($arguments['data']);
 		// failure : show message
 		if ( $loginResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
-		F::redirect('auth.form', isset($_SESSION['flash']['type']) and $_SESSION['flash']['type'] == 'danger');
+		F::redirect("{$fusebox->controller}.form", isset($_SESSION['flash']['type']) and $_SESSION['flash']['type'] == 'danger');
 		// success : go to default page
 		F::redirect(F::config('defaultCommand'));
 		break;
@@ -104,7 +104,7 @@ switch ( $fusebox->action ) :
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), $logoutResult === false);
 		// return to login form
-		F::redirect('auth');
+		F::redirect($fusebox->controller);
 		break;
 
 
@@ -114,7 +114,7 @@ switch ( $fusebox->action ) :
 		if ( $initResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		else $_SESSION['flash'] = array('type' => 'success', 'message' => "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})");
 		// back to form (with message)
-		F::redirect('auth.form');
+		F::redirect("{$fusebox->controller}.form");
 		break;
 
 
