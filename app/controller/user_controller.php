@@ -3,13 +3,10 @@ F::redirect('auth', !Auth::user());
 F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
-// default role & retain selected role
-if ( !isset($_SESSION['userController__userRole']) ) $_SESSION['userController__userRole'] = Auth::user('role');
-if ( isset($arguments['role']) ) $_SESSION['userController__userRole'] = $arguments['role'];
+// retain & default
+$_SESSION['userController__userRole'] = $arguments['role'] ?? $_SESSION['userController__userRole'] ?? Auth::user('role');
 // disallow user to see role with higher privilege
-if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::user('role') != 'SUPER' ) {
-	$_SESSION['userController__userRole'] = Auth::user('role');
-}
+if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::user('role') != 'SUPER' ) $_SESSION['userController__userRole'] = Auth::user('role');
 
 
 // run!
