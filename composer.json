@@ -3,5 +3,6 @@
 	"description": "Fuseboxy Auth - Login Form, User Management, User Simulation, etc.",
 	"license": "MIT",
     "type": "fuseboxy-module",
-    "require": { "fuseboxy/fuseboxy-installer": "*" }
+    "require": { "fuseboxy/fuseboxy-installer": "*" },
+    "autoload": { "files": ["app/model/"] }
 }
