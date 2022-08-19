@@ -3,7 +3,6 @@
 	"description": "Fuseboxy Auth - Login Form, User Management, User Simulation, etc.",
 	"license": "MIT",
 	"type": "fuseboxy-module",
-	"require": { "fuseboxy/fuseboxy-installer": "*" },
-	"repositories": [ { "type": "git", "url": "https://www.bitbucket.org/henrygotmojo/fuseboxy-installer" } ],
+	"require": { "fuseboxy/fuseboxy-installer": "2.2.x" },
 	"autoload": { "files": [ "app/model/Auth.php", "app/model/Sim.php" ] }
 }
