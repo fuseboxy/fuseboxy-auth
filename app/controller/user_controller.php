@@ -3,10 +3,10 @@ F::redirect('auth', !Auth::user());
 F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
-// retain & default
-$_SESSION['userController__userRole'] = $arguments['role'] ?? $_SESSION['userController__userRole'] ?? Auth::user('role');
+// default role
+$arguments['role'] = $arguments['role'] ?? Auth::user('role') ?: '';
 // disallow user to see role with higher privilege
-if ( $_SESSION['userController__userRole'] == 'SUPER' and Auth::user('role') != 'SUPER' ) $_SESSION['userController__userRole'] = Auth::user('role');
+if ( $arguments['role'] == 'SUPER' and Auth::user('role') != 'SUPER' ) $arguments['role'] = Auth::user('role');
 
 
 // run!
@@ -41,12 +41,13 @@ switch ( $fusebox->action ) :
 		// only show [new-password] field in edit form when password hash
 		$enterNewPassword = ( F::is('*.edit') and Auth::$hashPassword );
 		// config
-		$scaffold = array(
+		$scaffold = array_merge([
 			'beanType' => 'user',
+			'retainParam' => array('role' => $arguments['role']),
 			'editMode' => 'inline',
 			'allowDelete' => Auth::userInRole('SUPER'),
 			'layoutPath' => F::appPath('view/user/layout.php'),
-			'listFilter' => array('role = ?', array($_SESSION['userController__userRole'])),
+			'listFilter' => array('role = ?', array($arguments['role'])),
 			'listOrder' => 'ORDER BY username',
 			'listField' => array(
 				'id' => '60',
@@ -56,7 +57,7 @@ switch ( $fusebox->action ) :
 			),
 			'fieldConfig' => array(
 				'id',
-				'role' => array('icon' => 'fa fa-tag small', 'default' => $_SESSION['userController__userRole'], 'required' => true, 'readonly' => !Auth::userInRole('SUPER')),
+				'role' => array('icon' => 'fa fa-tag small', 'default' => $arguments['role'], 'required' => true, 'readonly' => !Auth::userInRole('SUPER')),
 				'username' => array('icon' => 'fa fa-user small', 'placeholder' => true, 'required' => true),
 				'password' => array('icon' => 'fa fa-key small', 'placeholder' => true),
 				'new_password' => $enterNewPassword ? array('icon' => 'fa fa-key small', 'placeholder' => true) : false,
@@ -68,7 +69,7 @@ switch ( $fusebox->action ) :
 				'row' => F::appPath('view/user/row.php'),
 			),
 			'writeLog' => class_exists('Log'),
-		);
+		], $userScaffold ?? []);
 		// component
 		include F::appPath('controller/scaffold_controller.php');
 
