@@ -69,7 +69,7 @@ switch ( $fusebox->action ) :
 				'row' => F::appPath('view/user/row.php'),
 			),
 			'writeLog' => class_exists('Log'),
-		], $userScaffold ?? []);
+		], $userScaffold ?? $user_scaffold ?? []);
 		// component
 		include F::appPath('controller/scaffold_controller.php');
 
