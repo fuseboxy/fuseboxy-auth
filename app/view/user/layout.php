@@ -4,7 +4,7 @@ $tabLayout = array(
 	'style' => 'tab',
 	'position' => 'left',
 	'header' => 'User',
-	'nav' => call_user_func(function(){
+	'nav' => call_user_func(function() use ($arguments){
 		$menus = array();
 		// all existing roles
 		$roles = ORM::query('SELECT DISTINCT role FROM user WHERE role != ? ORDER BY role ASC', ['SUPER'], 'col');
@@ -14,7 +14,7 @@ $tabLayout = array(
 			$menus[] = array(
 				'name' => ucwords( strtolower( $item ) ),
 				'url' => F::url( F::command('controller').'&role='.$item ),
-				'active' => ( isset($_SESSION['userController__userRole']) and $_SESSION['userController__userRole'] == $item ),
+				'active' => ( $arguments['role'] == $item ),
 				'remark' => ORM::count('user', 'role = ? AND disabled = 0', array($item)),
 			);
 		}
