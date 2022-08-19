@@ -4,10 +4,6 @@
 	"license": "MIT",
 	"type": "fuseboxy-module",
 	"require": { "fuseboxy/fuseboxy-installer": "*" },
-	"autoload": {
-		"files": [
-			"app/model/Auth.php",
-			"app/model/Sim.php"
-		]
-	}
+	"repositories": [ { "type": "git", "url": "https://www.bitbucket.org/henrygotmojo/fuseboxy-installer" } ],
+	"autoload": { "files": [ "app/model/Auth.php", "app/model/Sim.php" ] }
 }
