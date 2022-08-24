@@ -11,7 +11,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="auth-index" class="px-2 pt-2 pb-0">
+<div id="auth-index" class="pt-2 pb-0">
 	<div class="form-group">
 		<a href="<?php echo F::url($xfa['singleSignOn']); ?>" class="btn btn-sso btn-lg btn-block py-3 font-weight-light btn-primary">Single Sign-On</a>
 	</div>
