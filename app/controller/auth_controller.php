@@ -8,15 +8,15 @@ switch ( $fusebox->action ) :
 		if ( !empty($arguments['callback']) ) F::redirect(base64_decode($arguments['callback']), Auth::user());
 		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit points
-		$xfa['sso'] = 'sso'.( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
-		$xfa['init'] = "{$fusebox->controller}.init".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
-		$xfa['local'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		$xfa['init']         = "{$fusebox->controller}.init".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		$xfa['localAccount'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		$xfa['singleSignOn'] = 'sso'.( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		// create default account (when necessary)
 		$userCount = ORM::count('user');
 		F::error(ORM::error(), $userCount === false);
 		F::redirect($xfa['init'], !$userCount);
 		// go straight to login form (when sso not available)
-		F::redirect($xfa['local'], !file_exists(F::appPath('controller/sso_controller.php')));
+		F::redirect($xfa['localAccount'], !file_exists(F::appPath('controller/sso_controller.php')));
 		// display buttons (to choose between sso-login or local-login)
 		ob_start();
 		include F::appPath('view/auth/index.php');
