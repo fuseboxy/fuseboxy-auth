@@ -1,5 +1,5 @@
 <?php
-F::redirect('auth', !Auth::user());
+F::redirect('auth&callback='.base64_encode($_SERVER['REQUEST_URI']), !Auth::user());
 F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
