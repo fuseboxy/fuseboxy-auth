@@ -1,21 +1,23 @@
 <?php
-// check any custom SSO module
-$hasSSO = file_exists( F::appPath('controller/sso_controller.php') );
-
-
-// run!
 switch ( $fusebox->action ) :
 
 
 	case 'index':
-		// go to default page (when already signed in)
+		// when already logged in
+		// ===> go to landing page (or callback)
+		if ( !empty($arguments['callback']) ) F::redirect(base64_decode($arguments['callback']), Auth::user());
 		F::redirect(F::config('defaultCommand'), Auth::user());
-		// exit point
-		$xfa['sso'] = 'sso';
-		$xfa['local'] = "{$fusebox->controller}.form";
-		// go to login form (when sso not available)
-		F::redirect($xfa['local'], !$hasSSO);
-		// display
+		// exit points
+		$xfa['sso'] = 'sso'.( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		$xfa['init'] = "{$fusebox->controller}.init".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		$xfa['local'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		// create default account (when necessary)
+		$userCount = ORM::count('user');
+		F::error(ORM::error(), $userCount === false);
+		F::redirect($xfa['init'], !$userCount);
+		// go straight to login form (when sso not available)
+		F::redirect($xfa['local'], !file_exists(F::appPath('controller/sso_controller.php')));
+		// display buttons (to choose between sso-login or local-login)
 		ob_start();
 		include F::appPath('view/auth/index.php');
 		$layout['content'] = ob_get_clean();
@@ -26,14 +28,12 @@ switch ( $fusebox->action ) :
 
 
 	case 'form':
-		// go to default page when logged in
+		// when already logged in
+		// ===> go to landing page (or callback)
+		if ( !empty($arguments['callback']) ) F::redirect(base64_decode($arguments['callback']), Auth::user());
 		F::redirect(F::config('defaultCommand'), Auth::user());
-		// create default account (when necessary)
-		$userCount = ORM::count('user');
-		F::error(ORM::error(), $userCount === false);
-		F::redirect("{$fusebox->controller}.init", $userCount == 0);
 		// exit point
-		$xfa['submit'] = "{$fusebox->controller}.login";
+		$xfa['submit'] = "{$fusebox->controller}.login".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = "{$fusebox->controller}.forgot";
 		// display : captcha
 		if ( !empty(F::config('captcha')) ) {
@@ -52,10 +52,8 @@ switch ( $fusebox->action ) :
 
 
 	case 'forgot':
-		// go to default page when logged in
-		F::redirect(F::config('defaultCommand'), Auth::user());
 		// exit point
-		$xfa['submit'] = "{$fusebox->controller}.reset-password";
+		$xfa['submit'] = "{$fusebox->controller}.reset";
 		$xfa['login'] = "{$fusebox->controller}.form";
 		// display : captcha
 		if ( !empty(F::config('captcha')) ) {
@@ -73,7 +71,7 @@ switch ( $fusebox->action ) :
 		break;
 
 
-	case 'reset-password':
+	case 'reset':
 		F::error('No email was provided', empty($arguments['data']['email']));
 		// proceed to reset
 		$resetResult = Auth::resetPassword($arguments['data']['email']);
@@ -89,17 +87,22 @@ switch ( $fusebox->action ) :
 		F::error('No data were submitted', empty($arguments['data']));
 		// proceed to login
 		$loginResult = Auth::login($arguments['data']);
-		// failure : show message
+		// exit points
+		$xfa['success'] = !empty($arguments['callback']) ? base64_decode($arguments['callback']) : F::config('defaultCommand');
+		$xfa['failure'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
+		// when failure
+		// ===> show message and form
 		if ( $loginResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
-		F::redirect("{$fusebox->controller}.form", isset($_SESSION['flash']['type']) and $_SESSION['flash']['type'] == 'danger');
-		// success : go to default page
-		F::redirect(F::config('defaultCommand'));
+		F::redirect($xfa['failure'], $loginResult === false);
+		// when success
+		// ===> go to landing page (or callback)
+		F::redirect($xfa['success']);
 		break;
 
 
 	case 'logout':
 		// perform sso logout (when available)
-		F::redirect('sso.logout', $hasSSO);
+		F::redirect('sso.logout', file_exists(F::appPath('controller/sso_controller.php')));
 		// proceed to logout
 		$logoutResult = Auth::logout();
 		F::error(Auth::error(), $logoutResult === false);
@@ -114,7 +117,9 @@ switch ( $fusebox->action ) :
 		if ( $initResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		else $_SESSION['flash'] = array('type' => 'success', 'message' => "{$defaultUser['role']} account created ({$defaultUser['username']}:{$defaultUser['password']})");
 		// back to form (with message)
-		F::redirect("{$fusebox->controller}.form");
+		$xfa['redirect'] = file_exists(F::appPath('controller/sso_controller.php')) ? $fusebox->controller : "{$fusebox->controller}.form";
+		if ( !empty($arguments['callback']) ) $xfa['redirect'] .= "&callback={$arguments['callback']}";
+		F::redirect($xfa['redirect']);
 		break;
 
 
