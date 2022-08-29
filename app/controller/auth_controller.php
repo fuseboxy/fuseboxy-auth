@@ -4,9 +4,8 @@ switch ( $fusebox->action ) :
 
 	case 'index':
 		// when already logged in
-		// ===> go to landing page (or callback)
-		if ( !empty($arguments['callback']) ) F::redirect(base64_decode($arguments['callback']), Auth::user());
-		F::redirect(F::config('defaultCommand'), Auth::user());
+		// ===> go to landing page (with callback attached)
+		F::redirect(F::config('defaultCommand').( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' ), Auth::user());
 		// exit points
 		$xfa['init']         = "{$fusebox->controller}.init".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		$xfa['localAccount'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
@@ -29,9 +28,8 @@ switch ( $fusebox->action ) :
 
 	case 'form':
 		// when already logged in
-		// ===> go to landing page (or callback)
-		if ( !empty($arguments['callback']) ) F::redirect(base64_decode($arguments['callback']), Auth::user());
-		F::redirect(F::config('defaultCommand'), Auth::user());
+		// ===> go to landing page (with callback attached)
+		F::redirect(F::config('defaultCommand').( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' ), Auth::user());
 		// exit point
 		$xfa['submit'] = "{$fusebox->controller}.login".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		if ( !empty(F::config('smtp')) ) $xfa['forgot'] = "{$fusebox->controller}.forgot";
@@ -88,14 +86,14 @@ switch ( $fusebox->action ) :
 		// proceed to login
 		$loginResult = Auth::login($arguments['data']);
 		// exit points
-		$xfa['success'] = !empty($arguments['callback']) ? base64_decode($arguments['callback']) : F::config('defaultCommand');
+		$xfa['success'] = F::config('defaultCommand').( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		$xfa['failure'] = "{$fusebox->controller}.form".( !empty($arguments['callback']) ? "&callback={$arguments['callback']}" : '' );
 		// when failure
 		// ===> show message and form
 		if ( $loginResult === false ) $_SESSION['flash'] = array('type' => 'danger', 'message' => Auth::error());
 		F::redirect($xfa['failure'], $loginResult === false);
 		// when success
-		// ===> go to landing page (or callback)
+		// ===> go to landing page (with callback attached)
 		F::redirect($xfa['success']);
 		break;
 
