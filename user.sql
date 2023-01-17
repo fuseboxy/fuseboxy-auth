@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS `user` (
   KEY `role` (`role`),
   KEY `username` (`username`),
   KEY `disabled` (`disabled`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
