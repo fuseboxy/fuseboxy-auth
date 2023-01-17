@@ -83,29 +83,6 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
-			generate random password
-		</description>
-		<io>
-			<in>
-				<number name="length" default="8" />
-			</in>
-			<out>
-				<string name="~return~" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function generateRandomPassword($length=8) {
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
-		return substr(str_shuffle($chars), 0, $length);
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			perform password hashing when necessary
 		</description>
 		<io>
@@ -328,6 +305,31 @@ class Auth {
 	/**
 	<fusedoc>
 		<description>
+			generate random password
+		</description>
+		<io>
+			<in>
+				<number name="length" default="8" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function randomPassword($length=8) {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*=-+:?";
+		return substr(str_shuffle($chars), 0, $length);
+	}
+	// alias method
+	public static function generateRandomPassword($length=8) { return self::randomPassword($length); }
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			refresh session of actual user
 			===> usually being used after profile update
 		</description>
@@ -412,7 +414,7 @@ class Auth {
 			return false;
 		}
 		// generate random password
-		$random = self::generateRandomPassword();
+		$random = self::randomPassword();
 		// save random password
 		$user->password = self::hashPassword($random);
 		$saveResult = ORM::save($user);
