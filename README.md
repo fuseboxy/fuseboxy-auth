@@ -6,3 +6,4 @@ Fuseboxy Auth (v2.x)
 * Fuseboxy Framework Core (1.x)
 * Fuseboxy Layout (2.x)
 * Fuseboxy ORM (latest)
+
