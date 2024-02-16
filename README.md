@@ -1,9 +1,9 @@
-Fuseboxy Auth (v2.x)
+Fuseboxy Auth (1.x)
 ====================
 
 
 ## Dependencies
 * Fuseboxy Framework Core (1.x)
-* Fuseboxy Layout (2.x)
+* Fuseboxy Layout (1.x)
 * Fuseboxy ORM (latest)
 
